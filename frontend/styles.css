@@ -2,14 +2,14 @@
     box-sizing: border-box;
 }
 
-body {
+body, html{
     padding: 0;
     margin: 0;
     background: #242424;
     font-family: Manrope, sans-serif;
     font-size: 1.2rem;
     color: white;
-    min-height: 75px;
+
 }
 
 .container {
@@ -18,13 +18,9 @@ body {
     padding: 0 40px;
     display: flex;
     flex-direction: column;
+    height: 90vh;
+    justify-content: center;
     align-items: center;
-    justify-items: center;
-}
-
-.full-height-grow {
-    flex-direction: column;
-    height: 250px;
 }
 
 .scroll-container {
@@ -98,22 +94,27 @@ body {
     display: inline-block;
     font-weight: 650;
     text-decoration: none;
-    margin-right: 1rem;
+    margin: 5px;
     text-align: center;
-    padding-block: 5px;
-    padding-inline: 5px;
+    padding: 3px 3px;
   }
 
 .btn1 {
     color: black;
     background-color: white;
+    border-color: rgb(255, 255, 255);
+    border-width: 2px;
+    border-style: solid;
+    padding: 1rem, 1rem;
+    text-decoration: none;
 }
 
 .btn2 {
     color: white;
     background-color: black;
     border-color: white;
-    border-width: 3px;
+    border-width: 2px;
+    border-style: solid;
     padding: 1rem, 1rem;
     text-decoration: none;
   }

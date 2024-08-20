@@ -7,7 +7,7 @@ body {
     margin: 0;
     background: #242424;
     font-family: Manrope, sans-serif;
-    font-size: 1.2rem;
+    font-size: 25px;
     color: white;
     min-height: 75px;
     align-content: center;
@@ -25,12 +25,15 @@ body {
     margin: 0 auto;
     padding: 0 40px;
     display: flex;
-    align-content: center;
+    flex-direction: column;
+    height: 90vh;
     justify-content: center;
+    align-items: center;
 }
 
 .base-text {
     align-items: center;
+    font-weight: 650;
 }
 
 .form {
