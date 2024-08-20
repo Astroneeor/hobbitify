@@ -57,47 +57,52 @@
 
                 // going through each subskill
                 for (const [subskillKey, subskill] of Object.entries(subskills)) {
+
                     let subskillContainer = document.createElement("div");
                     subskillContainer.className = "subskill-container";
-                    
+
                     let subskillHeader = document.createElement("h3");
-                    subskillHeader.textContent = subskillKey;
+                    subskillHeader.textContent = subskill.Name;
                     subskillContainer.appendChild(subskillHeader);
 
                     let levelGrid = document.createElement("div");
                     levelGrid.className = "level-grid-horizontal";
 
                     for (const [levelKey, level] of Object.entries(subskill)) {
+                        if (levelKey == "Name") {
+                            console.log('lol')
+                    } else {
                         let levelContainer = document.createElement("div");
-                        levelContainer.className = "level-container";
+                            levelContainer.className = "level-container";
 
-                        //skill level
-                        let levelHeader = document.createElement("h4");
-                        levelHeader.textContent = levelKey;
-                        levelContainer.appendChild(levelHeader);
+                            //skill level
+                            let levelHeader = document.createElement("h4");
+                            levelHeader.textContent = levelKey;
+                            levelContainer.appendChild(levelHeader);
 
-                        // skill descriptions
-                        let description = document.createElement("p");
-                        description.textContent = level.Description;
-                        levelContainer.appendChild(description);
+                            // skill descriptions
+                            let description = document.createElement("p");
+                            description.textContent = level.Description;
+                            levelContainer.appendChild(description);
 
-                        let instruction = document.createElement("p");
-                        instruction.textContent = level.Instruction;
-                        levelContainer.appendChild(instruction);
+                            let instruction = document.createElement("p");
+                            instruction.textContent = level.Instruction;
+                            levelContainer.appendChild(instruction);
 
-                        // checkboxes make the whole thing nicer
-                        let checkboxContainer = document.createElement("label");
-                        checkboxContainer.className = "checkbox-container";
-                        let checkbox = document.createElement("input");
-                        checkbox.type = "checkbox";
-                        let checkmark = document.createElement("span");
-                        checkmark.className = "checkmark";
-                        checkboxContainer.appendChild(checkbox);
-                        checkboxContainer.appendChild(checkmark);
-                        checkboxContainer.appendChild(document.createTextNode(' Complete'));
-                        levelContainer.appendChild(checkboxContainer);
+                            // checkboxes make the whole thing nicer
+                            let checkboxContainer = document.createElement("label");
+                            checkboxContainer.className = "checkbox-container";
+                            let checkbox = document.createElement("input");
+                            checkbox.type = "checkbox";
+                            let checkmark = document.createElement("span");
+                            checkmark.className = "checkmark";
+                            checkboxContainer.appendChild(checkbox);
+                            checkboxContainer.appendChild(checkmark);
+                            checkboxContainer.appendChild(document.createTextNode(' Complete'));
+                            levelContainer.appendChild(checkboxContainer);
 
-                        levelGrid.appendChild(levelContainer);
+                            levelGrid.appendChild(levelContainer);
+                            }
                     }
 
                     // making sure everything is actuall on the grid
