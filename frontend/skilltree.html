@@ -18,7 +18,7 @@
             async function fetchSkillTree() {
                 const url = 'https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/';
                 const data = {
-                    "exampleKey": hobby
+                    "exampleKey": localStorage.getItem('hobby')
                 };
 
                 try {
@@ -32,10 +32,11 @@
 
                     skilltreedata = await response.json();
 
-                    const skillDataString = skilltreedata.result;
-                    const skillData = await JSON.parse(skillDataString);
+                        const skillDataString = skilltreedata.result;
+                        const skillData = JSON.parse(skillDataString);
 
-                    generateSkillTree(skillData); 
+                    generateSkillTree(skillData);
+                     
                 } catch (error) {
                     console.error('Error:', error);
                 }
