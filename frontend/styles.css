@@ -42,6 +42,12 @@ body {
     margin-right: 8px;
 }
 
+.back {
+  text-decoration: none;
+  font-family: Manrope, sans-serif;
+  color: white;
+}
+
 .text-carousel {
     height: 75px; /* Adjust based on your text size */
     overflow: hidden;

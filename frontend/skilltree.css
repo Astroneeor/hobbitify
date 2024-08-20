@@ -12,6 +12,12 @@ body {
     min-height: 75px;
 }
 
+.back {
+    text-decoration: none;
+    font-family: Manrope, sans-serif;
+    color: white;
+  }
+
 .heading {
     margin-left: 20px;
 }

@@ -8,6 +8,7 @@
     <link href="skilltree.css" rel="stylesheet">
 </head>
 <body>
+    <a class='back' href="landingpage.html">◄ Back</a>
     <div class="boxthing">
         <h1 class="heading">Skill Tree</h1>
         <div id="json-display"></div>
@@ -45,7 +46,8 @@
             function generateSkillTree(skillData) {
                 let skilltreecontainer = document.getElementById("json-display");
                 skilltreecontainer.innerHTML = '';
-
+                
+                // variables that make my life easier
                 let mainskill = skillData.Mainskill;
                 let subskills = skillData.Subskills;
 
@@ -53,7 +55,7 @@
                 mainskillHeader.textContent = mainskill;
                 skilltreecontainer.appendChild(mainskillHeader);
 
-                // Iterating through each subskill
+                // going through each subskill
                 for (const [subskillKey, subskill] of Object.entries(subskills)) {
                     let subskillContainer = document.createElement("div");
                     subskillContainer.className = "subskill-container";
@@ -69,10 +71,12 @@
                         let levelContainer = document.createElement("div");
                         levelContainer.className = "level-container";
 
+                        //skill level
                         let levelHeader = document.createElement("h4");
                         levelHeader.textContent = levelKey;
                         levelContainer.appendChild(levelHeader);
 
+                        // skill descriptions
                         let description = document.createElement("p");
                         description.textContent = level.Description;
                         levelContainer.appendChild(description);
@@ -81,6 +85,7 @@
                         instruction.textContent = level.Instruction;
                         levelContainer.appendChild(instruction);
 
+                        // checkboxes make the whole thing nicer
                         let checkboxContainer = document.createElement("label");
                         checkboxContainer.className = "checkbox-container";
                         let checkbox = document.createElement("input");
@@ -95,6 +100,7 @@
                         levelGrid.appendChild(levelContainer);
                     }
 
+                    // making sure everything is actuall on the grid
                     subskillContainer.appendChild(levelGrid);
                     skilltreecontainer.appendChild(subskillContainer);
                 }

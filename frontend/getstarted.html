@@ -5,17 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="getstarted.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
-    <link href="getstarted.css" rel="stylesheet">
     <title>Hobbitify - Get Started</title>
 </head>
-<body class="thingbox">
-    <div class='box' style="flex-grow: 1;">
-        <div class="base-text">This is where your hobby journey starts...</div>
-        <form id="hobby-form">
-            <label for="hobby-input">I want to learn to...</label>
-            <input type="text" id="hobby-input" name="hobby" required>
-            <button type="submit">Next</button>
-        </form>
+<body>
+    <a class='back' href="landingpage.html">◄ Back</a>
+
+    <div class='box full-height-grow'>
+        <div class="base-text">
+            This is where your hobby journey starts...
+            <form id="hobby-form">
+                <label for="hobby-input">I want to learn to...</label>
+                <input type="text" id="hobby-input" name="hobby" required>
+                <button type="submit">Next</button>
+            </form>
+        </div>
+        
     
         <script>
             document.getElementById('hobby-form').addEventListener('submit', function(event) {

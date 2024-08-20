@@ -10,7 +10,15 @@ body {
     font-size: 1.2rem;
     color: white;
     min-height: 75px;
+    align-content: center;
+    justify-content: center;
 }
+
+.back {
+    text-decoration: none;
+    font-family: Manrope, sans-serif;
+    color: white;
+  }
 
 .box {
     max-width: 1200px;
@@ -21,9 +29,8 @@ body {
     justify-content: center;
 }
 
-.full-height-grow {
-    flex-direction: column;
-    height: 250px;
+.base-text {
+    align-items: center;
 }
 
 .form {
