@@ -11,3 +11,56 @@ body {
     color: white;
     min-height: 75px;
 }
+
+.back {
+    text-decoration: none;
+    font-family: Manrope, sans-serif;
+    color: white;
+  }
+
+.container {
+    display: flex;
+    height: 90vh;
+    width: 90vw;
+    margin-left: 5vw;
+    margin-top: 5vh;
+}
+
+.vision {
+    display: flex;
+    height: 95%;
+    width: 50%;
+    margin: 1.5vh;
+    border-color: white;
+    border-width: 5px;
+    border-style: solid;
+    background-color: black;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.person {
+    display: flex;
+    flex-direction: column;
+    height: 95%;
+    width: 50%;
+    margin: 1.5vh;
+}
+
+.micah, .neeor {
+    height: 50%;
+    width: 100%;
+    border-color: white;
+    border-width: 5px;
+    border-style: solid;
+    background-color: black;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.micah {
+    margin-bottom: 2.5px;
+}
+
+.neeor {
+    margin-top: 2.5px;
+}
+
