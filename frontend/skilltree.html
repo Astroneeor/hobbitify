@@ -5,115 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="style.css" rel="stylesheet">
     <title>Skill Tree Generator</title>
-    <link href="style.css" rel="stylesheet">
     <link href="skilltree.css" rel="stylesheet">
-    <style>
-        /* Add some basic styling */
-        .level-container {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Create a 3x3 grid */
-            gap: 10px;
-        }
-        .subskill-container {
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
-    <h1>Skill Tree</h1>
-    <div id="json-display"></div>
+    <div class="boxthing">
+        <h1 class="heading">Skill Tree</h1>
+        <div id="json-display"></div>
 
-    <script>
-        let skilltreedata = null;
+        <script>
+            let skilltreedata = null;
 
-async function fetchSkillTree() {
-    const url = 'https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/';
-    const data = {
-        "exampleKey": "exampleValue"
-    };
+            async function fetchSkillTree() {
+                const url = 'https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/';
+                const data = {
+                    "exampleKey": "knit a sweater"
+                };
 
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
 
-        // Parse the JSON response
-        skilltreedata = await response.json();
+                    skilltreedata = await response.json();
 
-        // The actual skill data is in the result property as a string
-        const skillDataString = skilltreedata.result;
-        const skillData = JSON.parse(skillDataString); // Parse the inner JSON string
+                    const skillDataString = skilltreedata.result;
+                    const skillData = JSON.parse(skillDataString);
 
-        generateSkillTree(skillData); // Pass the parsed data to generateSkillTree
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
+                    generateSkillTree(skillData); 
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
 
-function generateSkillTree(skillData) {
-    let skilltreecontainer = document.getElementById("json-display");
-    skilltreecontainer.innerHTML = '';
+            function generateSkillTree(skillData) {
+                let skilltreecontainer = document.getElementById("json-display");
+                skilltreecontainer.innerHTML = '';
 
-    // Access the mainskill and subskills
-    let mainskill = skillData.Mainskill;
-    let subskills = skillData.Subskills;
+                let mainskill = skillData.Mainskill;
+                let subskills = skillData.Subskills;
 
-    // Create a header for the main skill
-    let mainskillHeader = document.createElement("h2");
-    mainskillHeader.textContent = mainskill;
-    skilltreecontainer.appendChild(mainskillHeader);
+                let mainskillHeader = document.createElement("h2");
+                mainskillHeader.textContent = mainskill;
+                skilltreecontainer.appendChild(mainskillHeader);
 
-    // Iterate through each subskill
-    for (const [subskillKey, subskill] of Object.entries(subskills)) {
-        let subskillContainer = document.createElement("div");
-        subskillContainer.className = "subskill-container";
-        
-        let subskillHeader = document.createElement("h3");
-        subskillHeader.textContent = subskillKey;
-        subskillContainer.appendChild(subskillHeader);
+                // Iterating through each subskill
+                for (const [subskillKey, subskill] of Object.entries(subskills)) {
+                    let subskillContainer = document.createElement("div");
+                    subskillContainer.className = "subskill-container";
+                    
+                    let subskillHeader = document.createElement("h3");
+                    subskillHeader.textContent = subskillKey;
+                    subskillContainer.appendChild(subskillHeader);
 
-        // Create a grid container for all levels within this subskill
-        let levelGrid = document.createElement("div");
-        levelGrid.className = "level-grid";
+                    let levelGrid = document.createElement("div");
+                    levelGrid.className = "level-grid-horizontal";
 
-        // Create containers for different levels
-        for (const [levelKey, level] of Object.entries(subskill)) {
-            let levelContainer = document.createElement("div");
-            levelContainer.className = "level-container";
+                    for (const [levelKey, level] of Object.entries(subskill)) {
+                        let levelContainer = document.createElement("div");
+                        levelContainer.className = "level-container";
 
-            let levelHeader = document.createElement("h4");
-            levelHeader.textContent = levelKey; // Beginner, Intermediate, etc.
-            levelContainer.appendChild(levelHeader);
+                        let levelHeader = document.createElement("h4");
+                        levelHeader.textContent = levelKey;
+                        levelContainer.appendChild(levelHeader);
 
-            let description = document.createElement("p");
-            description.textContent = level.Description; // Level description
-            levelContainer.appendChild(description);
+                        let description = document.createElement("p");
+                        description.textContent = level.Description;
+                        levelContainer.appendChild(description);
 
-            let instruction = document.createElement("p");
-            instruction.textContent = level.Instruction; // Level instruction
-            levelContainer.appendChild(instruction);
+                        let instruction = document.createElement("p");
+                        instruction.textContent = level.Instruction;
+                        levelContainer.appendChild(instruction);
 
-            // Append the level container to the grid
-            levelGrid.appendChild(levelContainer);
-        }
+                        let checkboxContainer = document.createElement("label");
+                        checkboxContainer.className = "checkbox-container";
+                        let checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        let checkmark = document.createElement("span");
+                        checkmark.className = "checkmark";
+                        checkboxContainer.appendChild(checkbox);
+                        checkboxContainer.appendChild(checkmark);
+                        checkboxContainer.appendChild(document.createTextNode(' Complete'));
+                        levelContainer.appendChild(checkboxContainer);
 
-        subskillContainer.appendChild(levelGrid);
-        skilltreecontainer.appendChild(subskillContainer);
-    }
-}
+                        levelGrid.appendChild(levelContainer);
+                    }
 
-// Call the function to fetch the skill tree data
-fetchSkillTree();
+                    subskillContainer.appendChild(levelGrid);
+                    skilltreecontainer.appendChild(subskillContainer);
+                }
+            }
 
-    </script>
+            // Call function
+            fetchSkillTree();
+        </script>
+    </div>
 </body>
 </html>
