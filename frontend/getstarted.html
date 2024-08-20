@@ -8,7 +8,27 @@
     <link href="getstarted.css" rel="stylesheet">
     <title>Hobbitify - Get Started</title>
 </head>
-<body>
+<body class="thingbox">
+    <div class='box' style="flex-grow: 1;">
+        <div class="base-text">This is where your hobby journey starts...</div>
+        <form id="hobby-form">
+            <label for="hobby-input">I want to learn to...</label>
+            <input type="text" id="hobby-input" name="hobby" required>
+            <button type="submit">Next</button>
+        </form>
+    
+        <script>
+            document.getElementById('hobby-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+    
+                const hobby = document.getElementById('hobby-input').value;
+    
+                localStorage.setItem('hobby', hobby);
+    
+                window.location.href = 'skilltree.html';
+            });
+        </script>
+    </div>
     
 </body>
 </html>
