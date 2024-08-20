@@ -51,7 +51,7 @@ body, html{
   }
   
   .carousel-container {
-    animation: moveUp 5s infinite;
+    animation: moveUp 10s infinite;
   }
   
   .carousel-item {
@@ -125,7 +125,7 @@ body, html{
     text-decoration: none;
     width: 300px;
     height: 50px;
-    margin-left: 340px;
-    margin-top: -120px;
-    margin-bottom: 75px;
+    margin-left: 17.5rem;
+    margin-top: -6.25rem;
+    margin-bottom: 3rem;
   }
