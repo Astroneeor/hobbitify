@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Server Request</title>
+</head>
+<body>
+    <button id="sendData">Send Data to Flask Server</button>
+    <script>
+        document.getElementById('sendData').addEventListener('click', function() {
+            // Example data to be sent in the POST request
+            const data = {
+                "exampleKey": "exampleValue"
+            };
+            // Send a POST request to the Flask server
+            fetch('https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('Result:', result);
+                alert('Server Response: ' + JSON.stringify(result));
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        });
+    </script>
+</body>
+</html>

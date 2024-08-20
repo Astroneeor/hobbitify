@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POST Request Test for Skill Tree</title>
+</head>
+<body>
+    <h1>POST Request Test for Skill Tree</h1>
+    <button id="testButton">Test POST Request</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testButton').addEventListener('click', testPostRequest);
+
+        async function testPostRequest() {
+            const url = 'https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/';
+            const data = { "exampleKey": "make board games" };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'exampleKey': 'exampleValue',
+                    },
+                    body: data
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `Success! Response: ${JSON.stringify(result, null, 2)}`;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `Error: ${error.message}`;
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+    </script>
+</body>
+</html>
