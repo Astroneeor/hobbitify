@@ -61,16 +61,14 @@
                     let subskillContainer = document.createElement("div");
                     subskillContainer.className = "subskill-container";
 
-                    let subskillHeader = document.createElement("h3");
-                    subskillHeader.textContent = subskill.Name;
-                    subskillContainer.appendChild(subskillHeader);
-
                     let levelGrid = document.createElement("div");
                     levelGrid.className = "level-grid-horizontal";
 
                     for (const [levelKey, level] of Object.entries(subskill)) {
                         if (levelKey == "Name") {
-                            console.log('lol')
+                            let subskillHeader = document.createElement("h3");
+                            subskillHeader.textContent = subskill.Name;
+                            subskillContainer.appendChild(subskillHeader);
                     } else {
                         let levelContainer = document.createElement("div");
                             levelContainer.className = "level-container";
