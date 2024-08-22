@@ -11,7 +11,6 @@ body {
   font-family: Manrope, sans-serif;
   font-size: 1.2rem;
   color: white;
-  min-height: 75px;
 }
 
 .back {
@@ -23,6 +22,7 @@ body {
 
 .heading {
   margin-left: 20px;
+  font-weight: 1000;
 }
 
 /* Overall container styling */
@@ -33,7 +33,7 @@ body {
 
 /* Subskill container styling */
 .subskill-container {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 /* Level grid container */
@@ -51,7 +51,9 @@ body {
 .level-container {
   background-color: #2e2e2e;
   padding: 15px;
-  border-radius: 8px;
+  border-radius: 4px;
+  border-style: outset;
+  border-width: 2px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Darker shadow for better contrast */
   position: relative; /* For positioning the arrows */
 }
@@ -75,13 +77,13 @@ body {
 /* Level headers styling */
 .level-container h4 {
   margin: 0 0 10px 0;
-  color: white;
+  color: #cccccc;
 }
 
 /* Description and instruction text styling */
 .level-container p {
   margin: 5px 0;
-  color: #cccccc; /* Light gray for text to stand out against dark background */
+  color: #ffffff; /* Light gray for text to stand out against dark background */
   font-size: 14px;
 }
 
