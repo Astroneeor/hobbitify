@@ -96,6 +96,7 @@ body, html{
     text-decoration: none;
     margin: 0.1rem;
     text-align: center;
+    text-justify: center;
     padding: 0.1rem 0.1rem;
   }
 
@@ -116,7 +117,7 @@ body, html{
     background-color: black;
     border-color: white;
     border-width: 1px;
-    border-style: dotted;
+    border-style: solid;
     padding: 1rem, 1rem;
     text-decoration: none;
     height: 2rem;
@@ -127,9 +128,9 @@ body, html{
     border-width: 2px;
     border-style: solid;
     text-decoration: none;
-    width: 15rem;
+    width: 11rem;
     height: 50px;
-    margin-left: 17rem;
+    margin-left: 13rem;
     margin-top: -6.25rem;
     margin-bottom: 3rem;
   }

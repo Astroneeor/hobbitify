@@ -16,6 +16,7 @@ body {
     text-decoration: none;
     font-family: Manrope, sans-serif;
     color: white;
+    font-weight: 700;
   }
 
 .container {
@@ -52,7 +53,7 @@ body {
     font-weight: 600;
     height: 50%;
     width: 100%;
-    padding: 10px;
+    padding: 1rem;
     border-color: white;
     border-width: 2px;
     border-style: solid;
@@ -62,10 +63,10 @@ body {
 }
 
 .micah {
-    margin-bottom: 2.5px;
+    margin-bottom: 1rem;
 }
 
 .neeor {
-    margin-top: 2.5px;
+    margin-top: 1rem;
 }
 

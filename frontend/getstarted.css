@@ -18,6 +18,7 @@ body {
     text-decoration: none;
     font-family: Manrope, sans-serif;
     color: white;
+    font-weight: 700;
   }
 
 .box {
@@ -43,8 +44,15 @@ body {
     padding: 4px;
     border-width: 2px;
     border-color: white;
+    border-style: solid;
 }
 
-.button {
+.next {
     font-family: Manrope, sans-serif;
+    border-radius: 0px;
+    background-color: white;
+    color: black;
+    border-style: none;
+    font-weight: 700;
+    padding: .3rem;
 }
