@@ -1,72 +1,74 @@
-*, *::before, *::after {
-    box-sizing: border-box;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
-    padding: 0;
-    margin: 0;
-    background: #242424;
-    font-family: Manrope, sans-serif;
-    font-size: 1.2rem;
-    color: white;
-    min-height: 75px;
+  padding: 0;
+  margin: 0;
+  background: #242424;
+  font-family: Manrope, sans-serif;
+  font-size: 1.2rem;
+  color: white;
+  min-height: 75px;
 }
 
 .back {
-    text-decoration: none;
-    font-family: Manrope, sans-serif;
-    color: white;
-    font-weight: 700;
-  }
+  text-decoration: none;
+  font-family: Manrope, sans-serif;
+  color: white;
+  font-weight: 700;
+}
 
 .container {
-    display: flex;
-    height: 90vh;
-    width: 90vw;
-    margin-left: 5vw;
-    margin-top: 5vh;
+  display: flex;
+  height: 90vh;
+  width: 90vw;
+  margin-left: 5vw;
+  margin-top: 5vh;
 }
 
 .vision {
-    display: flex;
-    font-weight: 600;
-    height: 95%;
-    width: 50%;
-    margin: 1.5vh;
-    padding: 10px;
-    border-color: white;
-    border-width: 2px;
-    border-style: solid;
-    background-color: black;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  font-weight: 600;
+  height: 95%;
+  width: 50%;
+  margin: 1.5vh;
+  padding: 10px;
+  border-color: white;
+  border-width: 2px;
+  border-style: solid;
+  background-color: black;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .person {
-    display: flex;
-    flex-direction: column;
-    height: 95%;
-    width: 50%;
-    margin: 1.5vh;
+  display: flex;
+  flex-direction: column;
+  height: 95%;
+  width: 50%;
+  margin: 1.5vh;
 }
 
-.micah, .neeor {
-    font-weight: 600;
-    height: 50%;
-    width: 100%;
-    padding: 1rem;
-    border-color: white;
-    border-width: 2px;
-    border-style: solid;
-    background-color: black;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    overflow: scroll;
+.micah,
+.neeor {
+  font-weight: 600;
+  height: 50%;
+  width: 100%;
+  padding: 1rem;
+  border-color: white;
+  border-width: 2px;
+  border-style: solid;
+  background-color: black;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  overflow: scroll;
 }
 
 .micah {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .neeor {
-    margin-top: 1rem;
+  margin-top: 1rem;
 }
-

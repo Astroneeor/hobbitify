@@ -1,135 +1,140 @@
-*, *::before, *::after {
-    box-sizing: border-box;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
-    padding: 0;
-    margin: 0;
-    background: #242424;
-    font-family: Manrope, sans-serif;
-    font-size: 1.2rem;
-    color: white;
-    min-height: 75px;
+  padding: 0;
+  margin: 0;
+  background: #242424;
+  font-family: Manrope, sans-serif;
+  font-size: 1.2rem;
+  color: white;
+  min-height: 75px;
 }
 
 .back {
-    text-decoration: none;
-    font-family: Manrope, sans-serif;
-    color: white;
-    font-weight: 700;
-  }
+  text-decoration: none;
+  font-family: Manrope, sans-serif;
+  color: white;
+  font-weight: 700;
+}
 
 .heading {
-    margin-left: 20px;
+  margin-left: 20px;
 }
 
 /* Overall container styling */
 #json-display {
-    padding: 20px;
-    background-color: #242424;
+  padding: 20px;
+  background-color: #242424;
 }
 
 /* Subskill container styling */
 .subskill-container {
-    margin-bottom: 40px;
+  margin-bottom: 40px;
 }
 
 /* Level grid container */
 .level-grid-horizontal {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 columns for Beginner, Intermediate, Advanced, Expert */
-    grid-gap: 20px;
-    position: relative;
+  display: grid;
+  grid-template-columns: repeat(
+    4,
+    1fr
+  ); /* 4 columns for Beginner, Intermediate, Advanced, Expert */
+  grid-gap: 20px;
+  position: relative;
 }
 
 /* Level container styling */
 .level-container {
-    background-color: #2E2E2E;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Darker shadow for better contrast */
-    position: relative; /* For positioning the arrows */
+  background-color: #2e2e2e;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Darker shadow for better contrast */
+  position: relative; /* For positioning the arrows */
 }
 
 /* Arrow between skill difficulties */
 .level-container::after {
-    content: '→';
-    position: absolute;
-    top: 50%;
-    right: -20px; /* Adjust to position between boxes */
-    transform: translateY(-50%);
-    color: #888888; /* Light gray arrow */
-    font-size: 20px; /* Size of the arrow */
+  content: "→";
+  position: absolute;
+  top: 50%;
+  right: -20px; /* Adjust to position between boxes */
+  transform: translateY(-50%);
+  color: #888888; /* Light gray arrow */
+  font-size: 20px; /* Size of the arrow */
 }
 
 /* Hide arrow after the last skill (Expert) */
 .level-container:last-child::after {
-    display: none;
+  display: none;
 }
 
 /* Level headers styling */
 .level-container h4 {
-    margin: 0 0 10px 0;
-    color: white;
+  margin: 0 0 10px 0;
+  color: white;
 }
 
 /* Description and instruction text styling */
 .level-container p {
-    margin: 5px 0;
-    color: #CCCCCC; /* Light gray for text to stand out against dark background */
-    font-size: 14px;
+  margin: 5px 0;
+  color: #cccccc; /* Light gray for text to stand out against dark background */
+  font-size: 14px;
 }
 
 /* Checkbox container */
 .checkbox-container {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    user-select: none;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;
 }
 
 /* Hide the checkbox (will be replaced by a custom one) */
 .checkbox-container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
 }
 
 /* Create a custom checkbox */
 .checkmark {
-    height: 20px;
-    width: 20px;
-    background-color: #444444; /* Dark gray background for unchecked state */
-    border-radius: 4px;
-    margin-right: 8px;
+  height: 20px;
+  width: 20px;
+  background-color: #444444; /* Dark gray background for unchecked state */
+  border-radius: 4px;
+  margin-right: 8px;
 }
 
 /* When the checkbox is checked, add a background color */
 .checkbox-container input:checked ~ .checkmark {
-    background-color: #4CAF50; /* Green color for checked state */
+  background-color: #4caf50; /* Green color for checked state */
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
 .checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
+  content: "";
+  position: absolute;
+  display: none;
 }
 
 /* Show the checkmark when checked */
 .checkbox-container input:checked ~ .checkmark:after {
-    display: block;
+  display: block;
 }
 
 /* Style the checkmark/indicator */
 .checkbox-container .checkmark:after {
-    left: 7px;
-    top: 3px;
-    width: 6px;
-    height: 12px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }

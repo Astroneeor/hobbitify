@@ -1,117 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="style.css" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="style.css" rel="stylesheet" />
     <title>Skill Tree Generator</title>
-    <link href="skilltree.css" rel="stylesheet">
-</head>
-<body>
-    <a class='back' href="index.html">◄ Back</a>
+    <link href="skilltree.css" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="back" href="index.html">◄ Back</a>
     <div class="boxthing">
-        <h1 class="heading">Skill Tree</h1>
-        <div id="json-display"></div>
+      <h1 class="heading">Skill Tree</h1>
+      <div id="json-display"></div>
 
-        <script>
-            let skilltreedata = null;
+      <script>
+        let skilltreedata = null;
 
-            async function fetchSkillTree() {
-                const url = 'https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/';
-                const data = {
-                    "exampleKey": localStorage.getItem('hobby')
-                };
+        async function fetchSkillTree() {
+          const url =
+            "https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/";
+          const data = {
+            exampleKey: localStorage.getItem("hobby"),
+          };
 
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
 
-                    skilltreedata = await response.json();
+            skilltreedata = await response.json();
 
-                        const skillDataString = skilltreedata.result;
-                        const skillData = JSON.parse(skillDataString);
+            const skillDataString = skilltreedata.result;
+            const skillData = JSON.parse(skillDataString);
 
-                    generateSkillTree(skillData);
-                     
-                } catch (error) {
-                    console.error('Error:', error);
-                }
+            generateSkillTree(skillData);
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }
+
+        function generateSkillTree(skillData) {
+          let skilltreecontainer = document.getElementById("json-display");
+          skilltreecontainer.innerHTML = "";
+
+          // variables that make my life easier
+          let mainskill = skillData.Mainskill;
+          let subskills = skillData.Subskills;
+
+          let mainskillHeader = document.createElement("h2");
+          mainskillHeader.textContent = mainskill;
+          skilltreecontainer.appendChild(mainskillHeader);
+
+          // going through each subskill
+          for (const [subskillKey, subskill] of Object.entries(subskills)) {
+            let subskillContainer = document.createElement("div");
+            subskillContainer.className = "subskill-container";
+
+            let levelGrid = document.createElement("div");
+            levelGrid.className = "level-grid-horizontal";
+
+            for (const [levelKey, level] of Object.entries(subskill)) {
+              if (levelKey == "Name") {
+                let subskillHeader = document.createElement("h3");
+                subskillHeader.textContent = subskill.Name;
+                subskillContainer.appendChild(subskillHeader);
+              } else {
+                let levelContainer = document.createElement("div");
+                levelContainer.className = "level-container";
+
+                //skill level
+                let levelHeader = document.createElement("h4");
+                levelHeader.textContent = levelKey;
+                levelContainer.appendChild(levelHeader);
+
+                // skill descriptions
+                let description = document.createElement("p");
+                description.textContent = level.Description;
+                levelContainer.appendChild(description);
+
+                let instruction = document.createElement("p");
+                instruction.textContent = level.Instruction;
+                levelContainer.appendChild(instruction);
+
+                // checkboxes make the whole thing nicer
+                let checkboxContainer = document.createElement("label");
+                checkboxContainer.className = "checkbox-container";
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                let checkmark = document.createElement("span");
+                checkmark.className = "checkmark";
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(checkmark);
+                checkboxContainer.appendChild(
+                  document.createTextNode(" Complete")
+                );
+                levelContainer.appendChild(checkboxContainer);
+
+                levelGrid.appendChild(levelContainer);
+              }
             }
 
-            function generateSkillTree(skillData) {
-                let skilltreecontainer = document.getElementById("json-display");
-                skilltreecontainer.innerHTML = '';
-                
-                // variables that make my life easier
-                let mainskill = skillData.Mainskill;
-                let subskills = skillData.Subskills;
+            // making sure everything is actuall on the grid
+            subskillContainer.appendChild(levelGrid);
+            skilltreecontainer.appendChild(subskillContainer);
+          }
+        }
 
-                let mainskillHeader = document.createElement("h2");
-                mainskillHeader.textContent = mainskill;
-                skilltreecontainer.appendChild(mainskillHeader);
-
-                // going through each subskill
-                for (const [subskillKey, subskill] of Object.entries(subskills)) {
-
-                    let subskillContainer = document.createElement("div");
-                    subskillContainer.className = "subskill-container";
-
-                    let levelGrid = document.createElement("div");
-                    levelGrid.className = "level-grid-horizontal";
-
-                    for (const [levelKey, level] of Object.entries(subskill)) {
-                        if (levelKey == "Name") {
-                            let subskillHeader = document.createElement("h3");
-                            subskillHeader.textContent = subskill.Name;
-                            subskillContainer.appendChild(subskillHeader);
-                        } else {
-                            let levelContainer = document.createElement("div");
-                            levelContainer.className = "level-container";
-
-                            //skill level
-                            let levelHeader = document.createElement("h4");
-                            levelHeader.textContent = levelKey;
-                            levelContainer.appendChild(levelHeader);
-
-                            // skill descriptions
-                            let description = document.createElement("p");
-                            description.textContent = level.Description;
-                            levelContainer.appendChild(description);
-
-                            let instruction = document.createElement("p");
-                            instruction.textContent = level.Instruction;
-                            levelContainer.appendChild(instruction);
-
-                            // checkboxes make the whole thing nicer
-                            let checkboxContainer = document.createElement("label");
-                            checkboxContainer.className = "checkbox-container";
-                            let checkbox = document.createElement("input");
-                            checkbox.type = "checkbox";
-                            let checkmark = document.createElement("span");
-                            checkmark.className = "checkmark";
-                            checkboxContainer.appendChild(checkbox);
-                            checkboxContainer.appendChild(checkmark);
-                            checkboxContainer.appendChild(document.createTextNode(' Complete'));
-                            levelContainer.appendChild(checkboxContainer);
-
-                            levelGrid.appendChild(levelContainer);
-                            }
-                    }
-
-                    // making sure everything is actuall on the grid
-                    subskillContainer.appendChild(levelGrid);
-                    skilltreecontainer.appendChild(subskillContainer);
-                }
-            }
-
-            // Call function
-            fetchSkillTree();
-        </script>
+        // Call function
+        fetchSkillTree();
+      </script>
     </div>
-</body>
+  </body>
 </html>

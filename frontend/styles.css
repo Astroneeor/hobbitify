@@ -1,41 +1,43 @@
-*, *::before, *::after {
-    box-sizing: border-box;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-body, html{
-    padding: 0;
-    margin: 0;
-    background: #242424;
-    font-family: Manrope, sans-serif;
-    font-size: 1.2rem;
-    color: white;
-
+body,
+html {
+  padding: 0;
+  margin: 0;
+  background: #242424;
+  font-family: Manrope, sans-serif;
+  font-size: 1.2rem;
+  color: white;
 }
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 40px;
-    display: flex;
-    flex-direction: column;
-    height: 90vh;
-    justify-content: center;
-    align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  justify-content: center;
+  align-items: center;
 }
 
 .scroll-container {
-    height: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 25px;
-    overflow: hidden;
-    margin-bottom: 20px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .base-text {
-    font-weight: 650;
-    margin-right: 12px;
+  font-weight: 650;
+  margin-right: 12px;
 }
 
 .back {
@@ -45,92 +47,102 @@ body, html{
 }
 
 .text-carousel {
-    height: 75px; /* Adjust based on your text size */
-    overflow: hidden;
-    justify-content: center;
-  }
-  
-  .carousel-container {
-    animation: moveUp 10s infinite;
-  }
-  
-  .carousel-item {
-    height: 50px; /* Should match the height of .text-carousel */
-    display: flex;
-    justify-items: center;
-  }
-  
-  @keyframes moveUp {
-    1.4%, 11.1% {
-      transform: translateY(208px);
-    }
-    12.5%, 22.2% {
-      transform: translateY(158px);
-    }
-    23.61%, 33.3% {
-      transform: translateY(108px);
-    }
-    34.72%, 44.44% {
-      transform: translateY(58px);
-    }
-    45.83%, 55.55% {
-      transform: translateY(8px);
-    }
-    56.94%, 66.66% {
-      transform: translateY(-42px);
-    }
-    68.05%, 77.77% {
-      transform: translateY(-92px);
-    }
-    79.16%, 88.88% {
-      transform: translateY(-142px);
-    }
-    90.27%, 100% {
-        transform: translateY(-192px);
-      }
-  }
+  height: 75px; /* Adjust based on your text size */
+  overflow: hidden;
+  justify-content: center;
+}
 
-.btn1, .btn2 {
-    display: inline-block;
-    font-weight: 650;
-    text-decoration: none;
-    margin: 0.1rem;
-    text-align: center;
-    text-justify: center;
-    padding: 0.1rem 0.1rem;
+.carousel-container {
+  animation: moveUp 10s infinite;
+}
+
+.carousel-item {
+  height: 50px; /* Should match the height of .text-carousel */
+  display: flex;
+  justify-items: center;
+}
+
+@keyframes moveUp {
+  1.4%,
+  11.1% {
+    transform: translateY(208px);
   }
+  12.5%,
+  22.2% {
+    transform: translateY(158px);
+  }
+  23.61%,
+  33.3% {
+    transform: translateY(108px);
+  }
+  34.72%,
+  44.44% {
+    transform: translateY(58px);
+  }
+  45.83%,
+  55.55% {
+    transform: translateY(8px);
+  }
+  56.94%,
+  66.66% {
+    transform: translateY(-42px);
+  }
+  68.05%,
+  77.77% {
+    transform: translateY(-92px);
+  }
+  79.16%,
+  88.88% {
+    transform: translateY(-142px);
+  }
+  90.27%,
+  100% {
+    transform: translateY(-192px);
+  }
+}
+
+.btn1,
+.btn2 {
+  display: inline-block;
+  font-weight: 650;
+  text-decoration: none;
+  margin: 0.1rem;
+  text-align: center;
+  text-justify: center;
+  padding: 0.1rem 0.1rem;
+}
 
 .btn1 {
-    color: black;
-    background-color: white;
-    border-color: rgb(255, 255, 255);
-    border-width: 1px;
-    border-style: solid;
-    padding: 1rem, 1rem;
-    text-decoration: none;
-    height: 2rem;
-    width: 8rem;
+  color: black;
+  background-color: white;
+  border-color: rgb(255, 255, 255);
+  border-width: 1px;
+  border-style: solid;
+  padding: 1rem, 1rem;
+  text-decoration: none;
+  height: 2rem;
+  width: 8rem;
 }
 
 .btn2 {
-    color: white;
-    background-color: black;
-    border-color: white;
-    border-width: 1px;
-    border-style: solid;
-    padding: 1rem, 1rem;
-    text-decoration: none;
-    height: 2rem;
-    width: 8rem;
-  }
-  .square {
-    border-color: rgb(255, 255, 255);
-    border-width: 2px;
-    border-style: solid;
-    text-decoration: none;
-    width: 12rem;
-    height: 50px;
-    margin-left: 14rem;
-    margin-top: -6.25rem;
-    margin-bottom: 3rem;
-  }
+  color: white;
+  background-color: black;
+  border-color: white;
+  border-width: 1px;
+  border-style: solid;
+  padding: 1rem, 1rem;
+  text-decoration: none;
+  height: 2rem;
+  width: 8rem;
+}
+.square {
+  border-color: rgb(255, 255, 255);
+  border-width: 2px;
+  border-style: solid;
+  text-decoration: none;
+  width: 12rem;
+  height: 50px;
+  margin-left: 14rem;
+  margin-top: -6.25rem;
+  margin-bottom: 3rem;
+}

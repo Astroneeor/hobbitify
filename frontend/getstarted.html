@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="getstarted.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="getstarted.css" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" />
     <title>Hobbitify - Get Started</title>
-</head>
-<body>
-    <a class='back' href="index.html">◄ Back</a>
-    <div class='box full-height-grow'>
-        <div class="base-text">
-            This is where your hobby journey starts
-            <form id="hobby-form">
-                <label for="hobby-input">I want to learn to...</label>
-                <input class="form" type="text" id="hobby-input" name="hobby" required>
-                <button type="submit" class="next">Next</button>
-            </form>
-        </div>
-        
-    
-        <script>
-            document.getElementById('hobby-form').addEventListener('submit', function(event) {
-                event.preventDefault();
-    
-                const hobby = document.getElementById('hobby-input').value;
-    
-                localStorage.setItem('hobby', hobby);
-    
-                window.location.href = 'skilltree.html';
-            });
-        </script>
+  </head>
+  <body>
+    <a class="back" href="index.html">◄ Back</a>
+    <div class="box full-height-grow">
+      <div class="base-text">
+        This is where your hobby journey starts
+        <form id="hobby-form">
+          <label for="hobby-input">I want to learn to...</label>
+          <input
+            class="form"
+            type="text"
+            id="hobby-input"
+            name="hobby"
+            required
+          />
+          <button type="submit" class="next">Next</button>
+        </form>
+      </div>
+
+      <script>
+        document
+          .getElementById("hobby-form")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const hobby = document.getElementById("hobby-input").value;
+
+            localStorage.setItem("hobby", hobby);
+
+            window.location.href = "skilltree.html";
+          });
+      </script>
     </div>
-    
-</body>
+  </body>
 </html>
