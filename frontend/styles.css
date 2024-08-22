@@ -61,32 +61,32 @@ body, html{
   }
   
   @keyframes moveUp {
-    11.1% {
-      transform: translateY(183px);
+    1.4%, 11.1% {
+      transform: translateY(208px);
     }
     12.5%, 22.2% {
-      transform: translateY(133px);
+      transform: translateY(158px);
     }
     23.61%, 33.3% {
-      transform: translateY(83px);
+      transform: translateY(108px);
     }
     34.72%, 44.44% {
-      transform: translateY(33px);
+      transform: translateY(58px);
     }
     45.83%, 55.55% {
-      transform: translateY(-17px);
+      transform: translateY(8px);
     }
     56.94%, 66.66% {
-      transform: translateY(-67px);
+      transform: translateY(-42px);
     }
     68.05%, 77.77% {
-      transform: translateY(-117px);
+      transform: translateY(-92px);
     }
     79.16%, 88.88% {
-      transform: translateY(-167px);
+      transform: translateY(-142px);
     }
     90.27%, 100% {
-        transform: translateY(-167px);
+        transform: translateY(-192px);
       }
   }
 
@@ -128,9 +128,9 @@ body, html{
     border-width: 2px;
     border-style: solid;
     text-decoration: none;
-    width: 11rem;
+    width: 12rem;
     height: 50px;
-    margin-left: 13rem;
+    margin-left: 14rem;
     margin-top: -6.25rem;
     margin-bottom: 3rem;
   }
