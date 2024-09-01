@@ -9,110 +9,206 @@
   </head>
   <body>
     <a class="back" href="index.html">◄ Back</a>
-    <div class="boxthing">
+    <div class="skilltree">
       <h1 class="heading">Skill Tree</h1>
       <div id="json-display"></div>
 
-      <script>
-        let skilltreedata = null;
+      <div class="tree">
+        <script>
+          let skilltreedata = null;
 
-        async function fetchSkillTree() {
-          const url =
-            "https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/";
-          const data = {
-            exampleKey: localStorage.getItem("hobby"),
-          };
+          async function fetchSkillTree() {
+            const url =
+              "https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/";
+            const data = {
+              exampleKey: localStorage.getItem("hobby"),
+            };
 
-          try {
-            const response = await fetch(url, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
-            });
+            try {
+              const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              });
 
-            skilltreedata = await response.json();
+              // skilltreedata = await response.json(); //
 
-            const skillDataString = skilltreedata.result;
-            const skillData = JSON.parse(skillDataString);
+              skilltreedata = [
+                {
+                  name: "Creating advanced CSS designs",
+                  parent: null,
+                  type: "Skill",
+                  Description:
+                    "Master advanced CSS techniques for complex and visually appealing web designs",
+                  Requirements: "Basic CSS knowledge",
+                },
+                {
+                  name: "Advanced Layout Techniques",
+                  parent: "Creating advanced CSS designs",
+                  type: "Subskill",
+                  Description: "Learn complex layout methods in CSS",
+                  Requirements: "Understanding of basic CSS layout",
+                },
+                {
+                  name: "CSS Grid",
+                  parent: "Advanced Layout Techniques",
+                  type: "Skill",
+                  Description: "Master CSS Grid for complex layouts",
+                  Requirements: "Basic CSS knowledge",
+                },
+                {
+                  name: "Grid Challenge",
+                  parent: "CSS Grid",
+                  type: "Challenge",
+                  Description:
+                    "Create a responsive dashboard layout using CSS Grid",
+                  Requirements: "CSS Grid proficiency",
+                },
+                {
+                  name: "Flexbox Mastery",
+                  parent: "Advanced Layout Techniques",
+                  type: "Skill",
+                  Description:
+                    "Deepen understanding of Flexbox for flexible layouts",
+                  Requirements: "Basic Flexbox knowledge",
+                },
+                {
+                  name: "Flexbox Challenge",
+                  parent: "Flexbox Mastery",
+                  type: "Challenge",
+                  Description: "Build a complex navigation menu using Flexbox",
+                  Requirements: "Advanced Flexbox skills",
+                },
+                {
+                  name: "CSS Animations",
+                  parent: "Creating advanced CSS designs",
+                  type: "Subskill",
+                  Description: "Create engaging animations using CSS",
+                  Requirements: "Intermediate CSS skills",
+                },
+                {
+                  name: "Keyframe Animations",
+                  parent: "CSS Animations",
+                  type: "Skill",
+                  Description: "Master keyframe animations for complex motion",
+                  Requirements: "Basic animation knowledge",
+                },
+                {
+                  name: "Advanced Animation Challenge",
+                  parent: "Keyframe Animations",
+                  type: "Challenge",
+                  Description:
+                    "Create a multi-step, interactive loading animation",
+                  Requirements: "Proficiency in keyframe animations",
+                },
+                {
+                  name: "Responsive Design",
+                  parent: "Creating advanced CSS designs",
+                  type: "Subskill",
+                  Description:
+                    "Create designs that adapt to various screen sizes",
+                  Requirements: "Understanding of CSS media queries",
+                },
+                {
+                  name: "Responsive Images",
+                  parent: "Responsive Design",
+                  type: "Skill",
+                  Description:
+                    "Implement responsive images for optimal performance",
+                  Requirements: "Basic responsive design knowledge",
+                },
+                {
+                  name: "Responsive Design Challenge",
+                  parent: "Responsive Images",
+                  type: "Challenge",
+                  Description:
+                    "Create a fully responsive landing page with optimized images",
+                  Requirements: "Advanced responsive design skills",
+                },
+              ];
 
-            generateSkillTree(skillData);
-          } catch (error) {
-            console.error("Error:", error);
-          }
-        }
+              const skillDataString = skilltreedata.result;
+              const skillData = JSON.parse(skillDataString);
 
-        function generateSkillTree(skillData) {
-          let skilltreecontainer = document.getElementById("json-display");
-          skilltreecontainer.innerHTML = "";
-
-          // variables that make my life easier
-          let mainskill = skillData.Mainskill;
-          let subskills = skillData.Subskills;
-
-          let mainskillHeader = document.createElement("h2");
-          mainskillHeader.textContent = mainskill;
-          skilltreecontainer.appendChild(mainskillHeader);
-
-          // going through each subskill
-          for (const [subskillKey, subskill] of Object.entries(subskills)) {
-            let subskillContainer = document.createElement("div");
-            subskillContainer.className = "subskill-container";
-
-            let levelGrid = document.createElement("div");
-            levelGrid.className = "level-grid-horizontal";
-
-            for (const [levelKey, level] of Object.entries(subskill)) {
-              if (levelKey == "Name") {
-                let subskillHeader = document.createElement("h3");
-                subskillHeader.textContent = subskill.Name;
-                subskillContainer.appendChild(subskillHeader);
-              } else {
-                let levelContainer = document.createElement("div");
-                levelContainer.className = "level-container";
-
-                //skill level
-                let levelHeader = document.createElement("h4");
-                levelHeader.textContent = levelKey;
-                levelContainer.appendChild(levelHeader);
-
-                // skill descriptions
-                let description = document.createElement("p");
-                description.textContent = level.Description;
-                levelContainer.appendChild(description);
-
-                let instruction = document.createElement("p");
-                instruction.textContent = level.Instruction;
-                levelContainer.appendChild(instruction);
-
-                // checkboxes make the whole thing nicer
-                let checkboxContainer = document.createElement("label");
-                checkboxContainer.className = "checkbox-container";
-                let checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                let checkmark = document.createElement("span");
-                checkmark.className = "checkmark";
-                checkboxContainer.appendChild(checkbox);
-                checkboxContainer.appendChild(checkmark);
-                checkboxContainer.appendChild(
-                  document.createTextNode(" Complete")
-                );
-                levelContainer.appendChild(checkboxContainer);
-
-                levelGrid.appendChild(levelContainer);
-              }
+              generateSkillTree(skillData);
+            } catch (error) {
+              console.error("Error:", error);
             }
-
-            // making sure everything is actuall on the grid
-            subskillContainer.appendChild(levelGrid);
-            skilltreecontainer.appendChild(subskillContainer);
           }
-        }
 
-        // Call function
-        fetchSkillTree();
-      </script>
+          function generateSkillTree(skillData) {
+            let skilltreecontainer = document.getElementById("json-display");
+            skilltreecontainer.innerHTML = "";
+
+            // variables that make my life easier
+            let mainskill = skillData.Mainskill;
+            let subskills = skillData.Subskills;
+
+            let mainskillHeader = document.createElement("h2");
+            mainskillHeader.textContent = mainskill;
+            skilltreecontainer.appendChild(mainskillHeader);
+
+            // going through each subskill
+            for (const [subskillKey, subskill] of Object.entries(subskills)) {
+              let subskillContainer = document.createElement("div");
+              subskillContainer.className = "subskill-container";
+
+              let levelGrid = document.createElement("div");
+              levelGrid.className = "level-grid-horizontal";
+
+              for (const [levelKey, level] of Object.entries(subskill)) {
+                if (levelKey == "Name") {
+                  let subskillHeader = document.createElement("h3");
+                  subskillHeader.textContent = subskill.Name;
+                  subskillContainer.appendChild(subskillHeader);
+                } else {
+                  let levelContainer = document.createElement("div");
+                  levelContainer.className = "level-container";
+
+                  //skill level
+                  let levelHeader = document.createElement("h4");
+                  levelHeader.textContent = levelKey;
+                  levelContainer.appendChild(levelHeader);
+
+                  // skill descriptions
+                  let description = document.createElement("p");
+                  description.textContent = level.Description;
+                  levelContainer.appendChild(description);
+
+                  let instruction = document.createElement("p");
+                  instruction.textContent = level.Instruction;
+                  levelContainer.appendChild(instruction);
+
+                  // checkboxes make the whole thing nicer
+                  let checkboxContainer = document.createElement("label");
+                  checkboxContainer.className = "checkbox-container";
+                  let checkbox = document.createElement("input");
+                  checkbox.type = "checkbox";
+                  let checkmark = document.createElement("span");
+                  checkmark.className = "checkmark";
+                  checkboxContainer.appendChild(checkbox);
+                  checkboxContainer.appendChild(checkmark);
+                  checkboxContainer.appendChild(
+                    document.createTextNode(" Complete")
+                  );
+                  levelContainer.appendChild(checkboxContainer);
+
+                  levelGrid.appendChild(levelContainer);
+                }
+              }
+
+              // making sure everything is actuall on the grid
+              subskillContainer.appendChild(levelGrid);
+              skilltreecontainer.appendChild(subskillContainer);
+            }
+          }
+
+          // Call function
+          fetchSkillTree();
+        </script>
+      </div>
     </div>
   </body>
 </html>

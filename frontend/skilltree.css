@@ -25,6 +25,10 @@ body {
   font-weight: 1000;
 }
 
+.tree {
+  display: flex;
+}
+
 /* Overall container styling */
 #json-display {
   padding: 20px;

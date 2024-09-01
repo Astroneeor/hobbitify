@@ -1,40 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask Server Request</title>
-</head>
-<body>
-    <button id="sendData">Send Data to Flask Server</button>
-    <script>
-        document.getElementById('sendData').addEventListener('click', function() {
-            // Example data to be sent in the POST request
-            const data = {
-                "exampleKey": "play the cello"
-            };
-            // Send a POST request to the Flask server
-            fetch('https://70803d49-af6e-440b-babd-f5e030b01349-00-2ubwx5yb03fkv.kirk.replit.dev/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(result => {
-                console.log('Result:', result);
-                alert('Server Response: ' + JSON.stringify(result));
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="style.css" rel="stylesheet" />
+    <title>Skill Tree Generator</title>
+    <link href="test.css" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="back" href="index.html">◄ Back</a>
+    <div class="skilltree">
+      <h1 class="heading">Skill Tree</h1>
+      <div id="json-display"></div>
+
+      <div class="tree">
+        <script>
+          let skilltreedata = null;
+
+          async function fetchSkillTree() {
+            // Mock data, replace this with your actual data fetching
+            skilltreedata = [
+              {
+                name: "Creating advanced CSS designs",
+                parent: null,
+                type: "Skill",
+                Description:
+                  "Master advanced CSS techniques for complex and visually appealing web designs",
+                Requirements: "Basic CSS knowledge",
+              },
+              {
+                name: "Advanced Layout Techniques",
+                parent: "Creating advanced CSS designs",
+                type: "Subskill",
+                Description: "Learn complex layout methods in CSS",
+                Requirements: "Understanding of basic CSS layout",
+              },
+              {
+                name: "CSS Grid",
+                parent: "Advanced Layout Techniques",
+                type: "Skill",
+                Description: "Master CSS Grid for complex layouts",
+                Requirements: "Basic CSS knowledge",
+              },
+              {
+                name: "Grid Challenge",
+                parent: "CSS Grid",
+                type: "Challenge",
+                Description:
+                  "Create a responsive dashboard layout using CSS Grid",
+                Requirements: "CSS Grid proficiency",
+              },
+              {
+                name: "Flexbox Mastery",
+                parent: "Advanced Layout Techniques",
+                type: "Skill",
+                Description:
+                  "Deepen understanding of Flexbox for flexible layouts",
+                Requirements: "Basic Flexbox knowledge",
+              },
+              {
+                name: "Flexbox Challenge",
+                parent: "Flexbox Mastery",
+                type: "Challenge",
+                Description: "Build a complex navigation menu using Flexbox",
+                Requirements: "Advanced Flexbox skills",
+              },
+              {
+                name: "CSS Animations",
+                parent: "Creating advanced CSS designs",
+                type: "Subskill",
+                Description: "Create engaging animations using CSS",
+                Requirements: "Intermediate CSS skills",
+              },
+              {
+                name: "Keyframe Animations",
+                parent: "CSS Animations",
+                type: "Skill",
+                Description: "Master keyframe animations for complex motion",
+                Requirements: "Basic animation knowledge",
+              },
+              {
+                name: "Advanced Animation Challenge",
+                parent: "Keyframe Animations",
+                type: "Challenge",
+                Description:
+                  "Create a multi-step, interactive loading animation",
+                Requirements: "Proficiency in keyframe animations",
+              },
+              {
+                name: "Responsive Design",
+                parent: "Creating advanced CSS designs",
+                type: "Subskill",
+                Description:
+                  "Create designs that adapt to various screen sizes",
+                Requirements: "Understanding of CSS media queries",
+              },
+              {
+                name: "Responsive Images",
+                parent: "Responsive Design",
+                type: "Skill",
+                Description:
+                  "Implement responsive images for optimal performance",
+                Requirements: "Basic responsive design knowledge",
+              },
+              {
+                name: "Responsive Design Challenge",
+                parent: "Responsive Images",
+                type: "Challenge",
+                Description:
+                  "Create a fully responsive landing page with optimized images",
+                Requirements: "Advanced responsive design skills",
+              },
+            ];
+
+            generateSkillTree(skilltreedata);
+          }
+
+          function generateSkillTree(skillData) {
+            const skilltreecontainer = document.getElementById("json-display");
+            skilltreecontainer.innerHTML = "";
+
+            // Create a map of skills by name for easy lookup
+            const skillMap = {};
+            skillData.forEach((skill) => {
+              skillMap[skill.name] = skill;
+              skill.children = []; // Initialize children array
             });
-        });
-    </script>
-</body>
+
+            // Populate the children array for each skill based on parent relationship
+            skillData.forEach((skill) => {
+              if (skill.parent) {
+                skillMap[skill.parent].children.push(skill);
+              }
+            });
+
+            // Function to create skill elements recursively
+            function createSkillElement(skill) {
+              const skillElement = document.createElement("div");
+              skillElement.className = "skill";
+
+              const skillHeader = document.createElement("h3");
+              skillHeader.textContent = skill.name;
+              skillElement.appendChild(skillHeader);
+
+              if (skill.Description) {
+                const description = document.createElement("p");
+                description.textContent = skill.Description;
+                skillElement.appendChild(description);
+              }
+
+              // Recursively create child skill elements
+              if (skill.children.length > 0) {
+                const childrenContainer = document.createElement("div");
+                childrenContainer.className = "children";
+                skill.children.forEach((childSkill) => {
+                  childrenContainer.appendChild(createSkillElement(childSkill));
+                });
+                skillElement.appendChild(childrenContainer);
+              }
+
+              return skillElement;
+            }
+
+            // Start by rendering the main headers (skills with no parent)
+            skillData.forEach((skill) => {
+              if (!skill.parent) {
+                // Create a header element for the main skill category
+                const headerElement = document.createElement("h2");
+                headerElement.textContent = skill.name;
+                skilltreecontainer.appendChild(headerElement);
+
+                // Render its children (subtree)
+                const subtreeContainer = document.createElement("div");
+                subtreeContainer.className = "subtree";
+                skill.children.forEach((childSkill) => {
+                  subtreeContainer.appendChild(createSkillElement(childSkill));
+                });
+                skilltreecontainer.appendChild(subtreeContainer);
+              }
+            });
+          }
+
+          // Call function
+          fetchSkillTree();
+        </script>
+      </div>
+    </div>
+  </body>
 </html>

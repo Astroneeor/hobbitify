@@ -1,0 +1,101 @@
+/* Basic styling for the skill tree container */
+.skilltree {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+/* Heading styles */
+.skilltree h1 {
+  text-align: center;
+  color: #ffffff;
+}
+
+.skilltree h2 {
+  margin-top: 20px;
+  color: #bbbbbb;
+  border-bottom: 2px solid #444;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+/* Styling for individual skill boxes */
+.skill {
+  border: 1px solid #333;
+  background-color: #1e1e1e;
+  padding: 15px;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  position: relative;
+}
+
+/* Highlighting skill levels */
+.skill h3 {
+  margin-top: 0;
+  color: #ffcc00;
+}
+
+/* Descriptions and instructions */
+.skill p {
+  margin: 5px 0;
+  color: #cccccc;
+}
+
+/* Skill connections */
+.skill::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 40px;
+  height: 1px;
+  background-color: #555;
+  transform: translateY(-50%);
+  z-index: -1;
+}
+
+.skill:first-child::after {
+  display: none;
+}
+
+/* Container for child skills (subskills) */
+.children {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  margin-top: 40px;
+}
+
+/* Responsive design for mobile screens */
+@media (max-width: 600px) {
+  .skilltree {
+    padding: 10px;
+  }
+
+  .skill {
+    margin: 10px;
+    padding: 10px;
+  }
+
+  .skill h3 {
+    font-size: 16px;
+  }
+
+  .skill p {
+    font-size: 14px;
+  }
+
+  .children {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .skill::after {
+    width: 20px;
+  }
+}
