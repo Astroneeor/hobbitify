@@ -18,102 +18,37 @@
           let skilltreedata = null;
 
           async function fetchSkillTree() {
-            // Mock data, replace this with your actual data fetching
-            skilltreedata = [
-              {
-                name: "Creating advanced CSS designs",
-                parent: null,
-                type: "Skill",
-                Description:
-                  "Master advanced CSS techniques for complex and visually appealing web designs",
-                Requirements: "Basic CSS knowledge",
-              },
-              {
-                name: "Advanced Layout Techniques",
-                parent: "Creating advanced CSS designs",
-                type: "Subskill",
-                Description: "Learn complex layout methods in CSS",
-                Requirements: "Understanding of basic CSS layout",
-              },
-              {
-                name: "CSS Grid",
-                parent: "Advanced Layout Techniques",
-                type: "Skill",
-                Description: "Master CSS Grid for complex layouts",
-                Requirements: "Basic CSS knowledge",
-              },
-              {
-                name: "Grid Challenge",
-                parent: "CSS Grid",
-                type: "Challenge",
-                Description:
-                  "Create a responsive dashboard layout using CSS Grid",
-                Requirements: "CSS Grid proficiency",
-              },
-              {
-                name: "Flexbox Mastery",
-                parent: "Advanced Layout Techniques",
-                type: "Skill",
-                Description:
-                  "Deepen understanding of Flexbox for flexible layouts",
-                Requirements: "Basic Flexbox knowledge",
-              },
-              {
-                name: "Flexbox Challenge",
-                parent: "Flexbox Mastery",
-                type: "Challenge",
-                Description: "Build a complex navigation menu using Flexbox",
-                Requirements: "Advanced Flexbox skills",
-              },
-              {
-                name: "CSS Animations",
-                parent: "Creating advanced CSS designs",
-                type: "Subskill",
-                Description: "Create engaging animations using CSS",
-                Requirements: "Intermediate CSS skills",
-              },
-              {
-                name: "Keyframe Animations",
-                parent: "CSS Animations",
-                type: "Skill",
-                Description: "Master keyframe animations for complex motion",
-                Requirements: "Basic animation knowledge",
-              },
-              {
-                name: "Advanced Animation Challenge",
-                parent: "Keyframe Animations",
-                type: "Challenge",
-                Description:
-                  "Create a multi-step, interactive loading animation",
-                Requirements: "Proficiency in keyframe animations",
-              },
-              {
-                name: "Responsive Design",
-                parent: "Creating advanced CSS designs",
-                type: "Subskill",
-                Description:
-                  "Create designs that adapt to various screen sizes",
-                Requirements: "Understanding of CSS media queries",
-              },
-              {
-                name: "Responsive Images",
-                parent: "Responsive Design",
-                type: "Skill",
-                Description:
-                  "Implement responsive images for optimal performance",
-                Requirements: "Basic responsive design knowledge",
-              },
-              {
-                name: "Responsive Design Challenge",
-                parent: "Responsive Images",
-                type: "Challenge",
-                Description:
-                  "Create a fully responsive landing page with optimized images",
-                Requirements: "Advanced responsive design skills",
-              },
-            ];
+            const url =
+              "https://306d35ba-df75-4b4a-8c6e-0e3cf5da585f-00-sdz04eqsz56g.kirk.replit.dev/"; // Adjust the URL to your backend
+            const data = {
+              exampleKey: localStorage.getItem("hobby"),
+            };
 
-            generateSkillTree(skilltreedata);
+            try {
+              const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              });
+
+              // Check if the response is okay
+              if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+
+              const skilltreedata = await response.json();
+              console.log("Fetched Data:", skilltreedata); // Debugging output
+
+              // Parse the JSON data from server response
+              const skillDataArray = JSON.parse(`[${skilltreedata.result}]`);
+              console.log("Parsed Skill Data Array:", skillDataArray); // Debugging output
+
+              generateSkillTree(skillDataArray);
+            } catch (error) {
+              console.error("Error fetching skill tree data:", error);
+            }
           }
 
           function generateSkillTree(skillData) {
