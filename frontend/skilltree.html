@@ -14,19 +14,20 @@
 
       <script>
         async function fetchSkillTree() {
-          const url = "https://306d35ba-df75-4b4a-8c6e-0e3cf5da585f-00-sdz04eqsz56g.kirk.replit.dev/"; // Adjust the URL to your backend
+          const url =
+            "https://306d35ba-df75-4b4a-8c6e-0e3cf5da585f-00-sdz04eqsz56g.kirk.replit.dev/"; // Adjust the URL to your backend
           const data = {
             exampleKey: localStorage.getItem("hobby"),
           };
 
-            try {
-              const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-              });
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
 
             // Check if the response is okay
             if (!response.ok) {
@@ -117,10 +118,9 @@
             return skillBox;
           }
 
-            // making sure everything is actuall on the grid
-            subskillContainer.appendChild(levelGrid);
-            skilltreecontainer.appendChild(subskillContainer);
-          }
+          // making sure everything is actuall on the grid
+          subskillContainer.appendChild(levelGrid);
+          skilltreecontainer.appendChild(subskillContainer);
         }
 
         // Call function
