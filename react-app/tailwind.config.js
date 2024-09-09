@@ -27,6 +27,15 @@ export default {
       screens: {
         "3xl": "1600px",
       },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
+      },
+      animation: {
+        marquee: 'marquee 10s linear infinite',
+      },
     },
     plugins: [],
   },
