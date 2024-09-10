@@ -14,15 +14,15 @@ const GettingStarted: React.FC = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/submit",
+        "https://306d35ba-df75-4b4a-8c6e-0e3cf5da585f-00-sdz04eqsz56g.kirk.replit.dev/",
         postData
       );
 
       if (response.status === 200) {
         // Successfully sent data, now redirect to the skill tree page
-        console.log("Data submitted successfully:", response.data);
+        console.log("Data submitted successfully:", response.data.result);
         // Pass data to the skill tree page
-        navigate("/skill-tree", { state: { skillInput: inputValue } });
+        navigate("/skill-tree", { state: { response: response.data.result } });
       } else {
         console.error("Failed to submit data");
       }

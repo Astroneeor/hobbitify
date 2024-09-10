@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import SkillNode from "./SkillNode";
+import response from "./GettingStarted";
 
 interface Skill {
   Name: string;
@@ -174,19 +175,20 @@ const SkillTree: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Toggle this flag to use POST or manual JSON
-  const useManualJson = true;
+  const useManualJson = false;
 
   useEffect(() => {
     if (useManualJson) {
       setSkills(manualSkillTreeJson);
     } else if (location.state?.skillInput) {
+      let parsedJson = ``; // Declare parsedJson outside the try block
       try {
-        const parsedJson = JSON.parse(location.state.skillInput);
+        const parsedJson = JSON.parse(location.state.response);
         setSkills(parsedJson);
       } catch (error) {
         console.error("Invalid JSON format:", error);
         setError(
-          "There was an issue loading the skill data. Invalid JSON format."
+          `There was an issue loading the skill data. Invalid JSON format. Parsed Result: ${parsedJson}`
         );
       }
     }
@@ -217,7 +219,13 @@ const SkillTree: React.FC = () => {
           </div>
         </div>
       ) : (
-        <p>No skills to display.</p>
+        <>
+          <p>
+            There was an issue loading the skill data. Invalid JSON format.
+            Parsed
+          </p>
+          <p>Result: {location.state.response}</p>
+        </>
       )}
     </div>
   );
