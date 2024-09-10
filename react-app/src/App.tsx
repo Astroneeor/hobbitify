@@ -1,17 +1,20 @@
-// src/App.tsx
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import GettingStarted from './pages/GettingStarted';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import GettingStarted from "./pages/GettingStarted";
+import SkillTree from "./pages/SkillTree";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/getting-started" element={<GettingStarted />} />
-      </Routes>
-    </Router>
+    <div className="dark bg-gray-900 text-white min-h-screen">
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/getting-started" element={<GettingStarted />} />
+          <Route path="/skill-tree" element={<SkillTree />} />
+        </Routes>
+      </Router>
+    </div>
   );
 };
 
