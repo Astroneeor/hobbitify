@@ -179,25 +179,33 @@ const SkillTree: React.FC = () => {
 
   useEffect(() => {
     if (useManualJson) {
+      // Set the manual skill tree data if the toggle is set
       setSkills(manualSkillTreeJson);
-    } else if (location.state?.skillInput) {
-      let parsedJson = ``; // Declare parsedJson outside the try block
+    } else if (location.state?.response) {
+      // Log the response for debugging purposes
+      console.log("Response to parse: ", location.state.response);
+
+      // Initialize parsedJson as Skill[]
+      let parsedJson: Skill[] = [];
       try {
-        const parsedJson = JSON.parse(location.state.response);
-        setSkills(parsedJson);
+        // Parse the JSON response and assert the type
+        const responseString = `[${location.state.response}]`
+        parsedJson = JSON.parse(responseString) as Skill[];
+        setSkills(parsedJson); // Set the parsed JSON to skills state
       } catch (error) {
+        // If parsing fails, log the error and show an error message
         console.error("Invalid JSON format:", error);
-        setError(
-          `There was an issue loading the skill data. Invalid JSON format. Parsed Result: ${parsedJson}`
-        );
+        setError(`There was an issue loading the skill data. Invalid JSON format. ${parsedJson}`);
       }
     }
   }, [location.state, useManualJson]);
 
   if (error) {
+    // Render the error message if there is a parsing error
     return <div className="p-8 dark:bg-gray-900 dark:text-white">{error}</div>;
   }
 
+  // Filter to get the root skills (those that are not listed as children of other skills)
   const rootSkills = skills.filter(
     (skill) => !skills.some((s) => s.Children?.includes(skill.Name))
   );
@@ -220,11 +228,8 @@ const SkillTree: React.FC = () => {
         </div>
       ) : (
         <>
-          <p>
-            There was an issue loading the skill data. Invalid JSON format.
-            Parsed
-          </p>
-          <p>Result: {location.state.response}</p>
+          <p>There was an issue loading the skill data.</p>
+          <p>Result: {JSON.stringify(location.state?.response)}</p> {/* Show the raw response */}
         </>
       )}
     </div>
