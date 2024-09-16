@@ -3,14 +3,18 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const GettingStarted: React.FC = () => {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState("");  // Manages input value
+  const [loading, setLoading] = useState(false);     // Manages loading state
+  const [error, setError] = useState<string | null>(null); // Manages error state
   const navigate = useNavigate();
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault();  // Prevents default form submission behavior
+    setLoading(true);    // Set loading to true while waiting for response
+    setError(null);      // Clear any previous errors
 
-    const postData = { input: inputValue };
+    const postData = { input: inputValue };  // The data to send to the backend
 
     try {
       const response = await axios.post(
@@ -24,10 +28,13 @@ const GettingStarted: React.FC = () => {
         // Pass data to the skill tree page
         navigate("/skill-tree", { state: { response: response.data.result } });
       } else {
-        console.error("Failed to submit data");
+        setError("Failed to submit data");
       }
     } catch (error) {
       console.error("Error submitting data:", error);
+      setError("An error occurred while submitting data.");
+    } finally {
+      setLoading(false);  // Reset loading state once the request is complete
     }
   };
 
@@ -42,11 +49,15 @@ const GettingStarted: React.FC = () => {
           placeholder="Enter your skill focus"
           className="border-2 border-gray-300 p-2 rounded-md w-80 dark:bg-gray-700 dark:border-gray-500"
         />
+
+        {error && <p className="text-red-500">{error}</p>} {/* Displays errors */}
+
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
+          disabled={loading || inputValue.trim() === ""}  // Disables button if loading or input is empty
         >
-          Submit
+          {loading ? "Submitting..." : "Submit"} {/* Show loading state */}
         </button>
       </form>
     </div>
