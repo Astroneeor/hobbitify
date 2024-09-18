@@ -23,7 +23,7 @@ const GettingStarted: React.FC = () => {
         console.log("Data submitted successfully:", response.data.result);
         navigate("/skill-tree", { state: { response: response.data.result } }); // Send response to SkillTree
       } else {
-        console.error("Failed to submit data");
+        setError("Failed to submit data");
       }
     } catch (error) {
       console.error("Error submitting data:", error); // Error handling if request fails
@@ -41,11 +41,14 @@ const GettingStarted: React.FC = () => {
           placeholder="Enter your skill focus"
           className="border-2 border-gray-300 p-2 rounded-md w-80 dark:bg-gray-700 dark:border-gray-500"
         />
+        {error && <p className="text-red-500">{error}</p>}{" "}
+        {/* Displays errors */}
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
+          disabled={loading || inputValue.trim() === ""} // Disables button if loading or input is empty
         >
-          Submit
+          {loading ? "Submitting..." : "Submit"} {/* Show loading state */}
         </button>
       </form>
     </div>
