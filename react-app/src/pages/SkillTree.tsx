@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import SkillNode from "./SkillNode";
-import response from "./GettingStarted";
 
 interface Skill {
   Name: string;
@@ -180,15 +179,20 @@ const SkillTree: React.FC = () => {
   useEffect(() => {
     if (useManualJson) {
       setSkills(manualSkillTreeJson);
-    } else if (location.state?.skillInput) {
-      let parsedJson = ``; // Declare parsedJson outside the try block
+    } else if (location.state?.response) {
       try {
-        const parsedJson = JSON.parse(location.state.response);
+        // Sanitize response string and remove any newline characters or extra spaces
+        const cleanedResponse = location.state.response
+          .replace(/\r?\n|\r/g, "") // Remove newline characters
+          .trim(); // Trim whitespace from the start and end
+
+        // Attempt to parse the cleaned response into a JSON object
+        const parsedJson = JSON.parse(cleanedResponse);
         setSkills(parsedJson);
       } catch (error) {
         console.error("Invalid JSON format:", error);
         setError(
-          `There was an issue loading the skill data. Invalid JSON format. Parsed Result: ${parsedJson}`
+          `There was an issue loading the skill data. Invalid JSON format.`
         );
       }
     }
@@ -198,6 +202,7 @@ const SkillTree: React.FC = () => {
     return <div className="p-8 dark:bg-gray-900 dark:text-white">{error}</div>;
   }
 
+  // Determine the root skills (skills without a parent)
   const rootSkills = skills.filter(
     (skill) => !skills.some((s) => s.Children?.includes(skill.Name))
   );
@@ -220,10 +225,7 @@ const SkillTree: React.FC = () => {
         </div>
       ) : (
         <>
-          <p>
-            There was an issue loading the skill data. Invalid JSON format.
-            Parsed
-          </p>
+          <p>There was an issue loading the skill data. Invalid JSON format.</p>
           <p>Result: {location.state.response}</p>
         </>
       )}
