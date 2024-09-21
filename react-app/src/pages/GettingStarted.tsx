@@ -24,9 +24,9 @@ const GettingStarted: React.FC = () => {
 
       if (response.status === 200) {
         // Successfully sent data, now redirect to the skill tree page
-        console.log("Data submitted successfully:", response.data.result);
+        console.log("Data submitted successfully:", response.data);
         // Pass data to the skill tree page
-        navigate("/skill-tree", { state: { response: response.data.result } });
+        navigate("/skill-tree", { state: { response: response.data } });
       } else {
         setError("Failed to submit data");
       }

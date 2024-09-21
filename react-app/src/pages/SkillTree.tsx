@@ -26,18 +26,19 @@ const SkillTree: React.FC = () => {
         if (typeof location.state.response === 'string') {
           parsedJson = JSON.parse(location.state.response); // Parse if string
         } else {
-          parsedJson = location.state.response; // Already an object
+          parsedJson = (location.state.response); // Already an object
         }
+        console.log(parsedJson)
         
         // Check if parsedJson is an array and assign it to skills state
-        if (Array.isArray(parsedJson)) {
-          setSkills(parsedJson);
-        } else {
-          setError("Expected an array of skills but received something else.");
-        }
       } catch (error) {
         console.error("Invalid JSON format:", error);
         setError("There was an issue loading the skill data. Invalid JSON format.");
+      }
+      if (Array.isArray(parsedJson)) {
+        setSkills(parsedJson);
+      } else {
+        setError("Expected an array of skills but received something else.");
       }
     }
   }, [location.state]);
