@@ -16,23 +16,29 @@ const SkillTree: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (useManualJson) {
-      setSkills(manualSkillTreeJson);
-    } else if (location.state?.response) {
-      try {
-        // Sanitize response string and remove any newline characters or extra spaces
-        const cleanedResponse = location.state.response
-          .replace(/\r?\n|\r/g, "") // Remove newline characters
-          .trim(); // Trim whitespace from the start and end
+    if (location.state?.response) {
+      // Log the response for debugging purposes
+      console.log("Response to parse: ", location.state.response);
 
-        // Attempt to parse the cleaned response into a JSON object
-        const parsedJson = JSON.parse(cleanedResponse);
-        setSkills(parsedJson);
+      // Parse the JSON string if it's not already an object/array
+      let parsedJson;
+      try {
+        if (typeof location.state.response === 'string') {
+          parsedJson = JSON.parse(location.state.response); // Parse if string
+        } else {
+          parsedJson = (location.state.response); // Already an object
+        }
+        console.log(parsedJson)
+        
+        // Check if parsedJson is an array and assign it to skills state
       } catch (error) {
         console.error("Invalid JSON format:", error);
-        setError(
-          `There was an issue loading the skill data. Invalid JSON format.`
-        );
+        setError("There was an issue loading the skill data. Invalid JSON format.");
+      }
+      if (Array.isArray(parsedJson)) {
+        setSkills(parsedJson);
+      } else {
+        setError("Expected an array of skills but received something else.");
       }
     }
   }, [location.state]);
@@ -48,7 +54,6 @@ const SkillTree: React.FC = () => {
     );
   }
 
-  // Determine the root skills (skills without a parent)
   // Filter to get the root skills (those that are not listed as children of other skills)
   const rootSkills = skills.filter(
     (skill) => !skills.some((s) => s.Children?.includes(skill.Name))
@@ -72,8 +77,8 @@ const SkillTree: React.FC = () => {
         </div>
       ) : (
         <>
-          <p>There was an issue loading the skill data. Invalid JSON format.</p>
-          <p>Result: {location.state.response}</p>
+          <p>There was an issue loading the skill data.</p>
+          <p>Result: {JSON.stringify(location.state?.response)}</p> {/* Show the raw response */}
         </>
       )}
     </div>
