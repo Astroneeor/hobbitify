@@ -30,6 +30,7 @@ const SkillNode: React.FC<{
       >
         <h3 className="text-lg font-bold truncate">{skill.Name}</h3>
         <p className="text-sm h-12 overflow-hidden">{skill.Description}</p>
+        <p className="text-sm h-12 overflow-hidden">{skill.Completion}</p>
         <p className="text-xs mt-2">Difficulty: {skill.Difficulty}</p>
       </div>
 
