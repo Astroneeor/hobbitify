@@ -26,6 +26,14 @@ const Navbar: React.FC = () => {
               Getting Started
             </Link>
           </li>
+          <li>
+            <Link
+              to="/skill-tree"
+              className="text-primary-100 hover:text-primary-200 transition-colors duration-300"
+            >
+              Skill Tree
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
