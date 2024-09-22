@@ -6,7 +6,7 @@ import SkillTree from "./pages/SkillTree";
 
 const App: React.FC = () => {
   return (
-    <div className="dark bg-gray-900 text-white min-h-screen">
+    <div className="dark bg-dark-mode text-secondary min-h-screen">
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />

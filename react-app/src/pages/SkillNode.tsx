@@ -23,14 +23,20 @@ const SkillNode: React.FC<{
   return (
     <div className="flex flex-col items-center relative">
       <div
-        className={`w-64 p-4 m-2 rounded-md cursor-pointer transition-all duration-300 ${
-          isSelected ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-gray-800"
+        className={`skill-node w-64 p-4 m-2 rounded-lg cursor-pointer transition-all duration-300 ${
+          isSelected
+            ? "bg-primary-200 text-white"
+            : "bg-skill-bg text-primary-100 border-primary-300"
         }`}
         onClick={() => setIsSelected(!isSelected)}
       >
         <h3 className="text-lg font-bold truncate">{skill.Name}</h3>
-        <p className="text-sm h-12 overflow-hidden">{skill.Description}</p>
-        <p className="text-sm h-12 overflow-hidden">{skill.Completion}</p>
+        <p className="text-sm h-12 overflow-hidden text-gray-700">
+          {skill.Description}
+        </p>
+        <p className="text-sm h-12 overflow-hidden text-gray-700">
+          {skill.Completion}
+        </p>
         <p className="text-xs mt-2">Difficulty: {skill.Difficulty}</p>
       </div>
 
