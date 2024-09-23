@@ -36,6 +36,15 @@ export default {
       animation: {
         marquee: "marquee 10s linear infinite",
       },
+      keyframes: {
+        scroll: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '100%': { transform: 'translateY(-100%)' },
+        },
+      },
+      animation: {
+        scroll: 'scroll 10s linear infinite',
+      },
     },
     plugins: [],
   },
