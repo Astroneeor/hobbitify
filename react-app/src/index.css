@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Background and Text for Dark Mode */
+.bg-dark-mode {
+  background-color: #121212; /* Dark background */
+}
+.text-primary {
+  color: #a259ff; /* Purple text color for skill titles */
+}
+.text-secondary {
+  color: #e0e0e0; /* Light gray for regular text in dark mode */
+}
+
+/* Dark Mode Skill Tree Styling */
+.skill-box-dark {
+  background-color: #1e1e1e; /* Darker gray for the skill box background */
+  color: #a259ff; /* Text color from the purple palette */
+  border-color: #7d3ac1; /* A darker purple for borders */
+}
+.skill-node:hover {
+  background-color: #ff62a5; /* Brighter purple */
+  transform: scale(1.05); /* Slight zoom on hover */
+  border-color: #7e3ac8; /* Darker border on hover */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}

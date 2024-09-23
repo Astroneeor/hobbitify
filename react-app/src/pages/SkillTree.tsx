@@ -23,17 +23,19 @@ const SkillTree: React.FC = () => {
       // Parse the JSON string if it's not already an object/array
       let parsedJson;
       try {
-        if (typeof location.state.response === 'string') {
+        if (typeof location.state.response === "string") {
           parsedJson = JSON.parse(location.state.response); // Parse if string
         } else {
-          parsedJson = (location.state.response); // Already an object
+          parsedJson = location.state.response; // Already an object
         }
-        console.log(parsedJson)
-        
+        console.log(parsedJson);
+
         // Check if parsedJson is an array and assign it to skills state
       } catch (error) {
         console.error("Invalid JSON format:", error);
-        setError("There was an issue loading the skill data. Invalid JSON format.");
+        setError(
+          "There was an issue loading the skill data. Invalid JSON format."
+        );
       }
       if (Array.isArray(parsedJson)) {
         setSkills(parsedJson);
@@ -60,7 +62,7 @@ const SkillTree: React.FC = () => {
   );
 
   return (
-    <div className="p-8 dark:bg-gray-900 dark:text-white">
+    <div className="p-8 bg-gray-bg text-primary-100">
       <h1 className="text-3xl font-bold mb-6">Skill Tree</h1>
       {skills.length > 0 ? (
         <div className="overflow-x-auto">
@@ -76,10 +78,7 @@ const SkillTree: React.FC = () => {
           </div>
         </div>
       ) : (
-        <>
-          <p>There was an issue loading the skill data.</p>
-          <p>Result: {JSON.stringify(location.state?.response)}</p> {/* Show the raw response */}
-        </>
+        <p>There was an issue loading the skill data.</p>
       )}
     </div>
   );

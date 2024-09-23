@@ -8,24 +8,16 @@ export default {
         "gray-600": "#343434",
         "gray-700": "#BDBDBD",
         "gray-800": "#828282",
-        "primary-100": "#4C9D98",
-        "primary-200": "#3A7D78",
-        "primary-300": "#2A5E5A",
-        "secondary-100": "#FAC61D",
+        "primary-100": "#A259FF", // Purple color for elements
+        "primary-200": "#FF62A5", // Pinkish hover color
+        "primary-300": "#7E3AC8", // Darker purple for borders
+        "secondary-100": "#FAC61D", // Yellow for some highlights
         "secondary-200": "#E0A21D",
         "secondary-300": "#C6841D",
+        "skill-bg": "#1E1E1E", // Dark background for skill nodes
       },
       fontFamily: {
-        Manrope: ["Manrope", "sans-serif"],
-      },
-      content: {
-        evolvetest: "url('/src/assets/images/EvolveText.svg')",
-        waves: "url('/src/assets/images/EvolveText.svg')",
-        glow: "url('/src/assets/images/EvolveText.svg')",
-        circles: "url('/src/assets/images/EvolveText.svg')",
-      },
-      screens: {
-        "3xl": "1600px",
+        Manrope: ["Manrope", "sans-serif"], // Already present, will apply it site-wide
       },
       keyframes: {
         marquee: {
@@ -46,6 +38,6 @@ export default {
         scroll: 'scroll 10s linear infinite',
       },
     },
-    plugins: [],
   },
+  plugins: [],
 };
