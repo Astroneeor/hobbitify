@@ -1,7 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { CSS_SKILL_TREE } from '../data/testSkillTrees';
 
 const LandingPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleExample = () => {
+    navigate("/skill-tree", { state: { response: CSS_SKILL_TREE } });
+  };
+
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
       {/* Navigation */}
@@ -70,8 +77,11 @@ const LandingPage: React.FC = () => {
             Start Building Your Skill Tree
           </Link>
           
-          <button className="px-8 py-4 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-xl font-medium text-lg transition-all duration-200">
-            See Example Trees
+          <button
+            onClick={handleExample}
+            className="px-8 py-4 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-xl font-medium text-lg transition-all duration-200"
+          >
+            See Example Tree
           </button>
         </div>
 

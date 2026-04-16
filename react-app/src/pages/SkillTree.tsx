@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
 import SkillNode from "../components/skill-tree/SkillNode";
-import { Skill } from "../types/skill";
-
+import { Skill, getDifficultyTier } from "../types/skill";
 
 const SkillTree: React.FC = () => {
   const location = useLocation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
@@ -13,72 +13,126 @@ const SkillTree: React.FC = () => {
 
   useEffect(() => {
     if (location.state?.response) {
-      console.log("Response to parse: ", location.state.response);
-
-      let parsedJson;
-      try {
-        if (typeof location.state.response === "string") {
-          parsedJson = JSON.parse(location.state.response);
-        } else {
-          parsedJson = location.state.response;
-        }
-        
-        if (Array.isArray(parsedJson)) {
-          setSkills(parsedJson);
-        } else {
-          setError("Expected an array of skills but received something else.");
-        }
-      } catch (error) {
-        console.error("Invalid JSON format:", error);
-        setError("There was an issue loading the skill data. Invalid JSON format.");
-      }
+      loadSkills(location.state.response);
     } else {
       setError("No skill tree data found. Please go back and generate a skill tree first.");
     }
   }, [location.state]);
 
-  const rootSkills = skills.filter(
-    (skill) => !skills.some((s) => s.Children?.includes(skill.Name))
-  );
+  const loadSkills = (data: any) => {
+    try {
+      const parsed = typeof data === "string" ? JSON.parse(data) : data;
+      if (Array.isArray(parsed)) {
+        setSkills(parsed);
+        setCompletedSkills(new Set());
+        setSelectedSkill(null);
+        setError(null);
+      } else {
+        setError("Expected an array of skills.");
+      }
+    } catch {
+      setError("Invalid JSON format.");
+    }
+  };
 
-  const getSelectedSkillData = () => {
-    return skills.find((skill) => skill.Name === selectedSkill);
+  // --- Tree structure helpers ---
+  const isRoot = (skill: Skill) =>
+    !skills.some((s) => s.Children?.includes(skill.Name));
+
+  const getParent = (skillName: string) =>
+    skills.find((s) => s.Children?.includes(skillName));
+
+  const isSkillUnlocked = (skillName: string): boolean => {
+    const parent = getParent(skillName);
+    if (!parent) return true; // root
+    return completedSkills.has(parent.Name);
   };
 
   const handleSkillComplete = (skillName: string) => {
-    setCompletedSkills(prev => new Set([...prev, skillName]));
+    setCompletedSkills((prev) => new Set([...prev, skillName]));
   };
 
-  const isSkillUnlocked = (skillName: string): boolean => {
-    const skill = skills.find(s => s.Name === skillName);
-    if (!skill) return false;
-    
-    // Root skills are always unlocked
-    const isRoot = !skills.some(s => s.Children?.includes(skillName));
-    if (isRoot) return true;
-    
-    // Find parent skill and check if it's completed
-    const parentSkill = skills.find(s => s.Children?.includes(skillName));
-    return parentSkill ? completedSkills.has(parentSkill.Name) : true;
+  // --- Tiling: group skills by depth level ---
+  const getDepthMap = (): Map<number, Skill[]> => {
+    const depthMap = new Map<number, Skill[]>();
+    const visited = new Set<string>();
+
+    const walk = (name: string, depth: number) => {
+      if (visited.has(name)) return;
+      visited.add(name);
+      const skill = skills.find((s) => s.Name === name);
+      if (!skill) return;
+      if (!depthMap.has(depth)) depthMap.set(depth, []);
+      depthMap.get(depth)!.push(skill);
+      skill.Children?.forEach((c) => walk(c, depth + 1));
+    };
+
+    skills.filter(isRoot).forEach((s) => walk(s.Name, 0));
+
+    // catch orphans
+    skills.forEach((s) => {
+      if (!visited.has(s.Name)) {
+        if (!depthMap.has(0)) depthMap.set(0, []);
+        depthMap.get(0)!.push(s);
+      }
+    });
+
+    return depthMap;
   };
 
-  if (error) {
+  // --- Export ---
+  const handleExport = () => {
+    const blob = new Blob([JSON.stringify(skills, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const rootName = skills.find(isRoot)?.Name || "skill-tree";
+    a.download = `${rootName.toLowerCase().replace(/\s+/g, "-")}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // --- Import ---
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        loadSkills(ev.target?.result as string);
+      } catch {
+        setError("Failed to read the uploaded file.");
+      }
+    };
+    reader.readAsText(file);
+    // reset so same file can be re-uploaded
+    e.target.value = "";
+  };
+
+  // --- Sidebar data ---
+  const selectedData = skills.find((s) => s.Name === selectedSkill);
+
+  // --- Error state ---
+  if (error && skills.length === 0) {
     return (
       <div className="min-h-screen bg-bg-primary text-text-primary">
         <nav className="border-b border-border-primary">
           <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-            <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">
-              hobbitify
-            </Link>
-            <Link 
-              to="/getting-started" 
-              className="px-4 py-2 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200"
-            >
-              Try Again
-            </Link>
+            <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">hobbitify</Link>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="px-4 py-2 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-sm"
+              >
+                Load JSON
+              </button>
+              <Link to="/getting-started" className="px-4 py-2 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200 text-sm">
+                Generate New
+              </Link>
+            </div>
           </div>
         </nav>
-        
+        <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
         <div className="max-w-2xl mx-auto px-6 pt-16">
           <div className="bg-error/10 border border-error/20 rounded-xl p-8 text-center">
             <div className="w-16 h-16 bg-error/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -88,195 +142,225 @@ const SkillTree: React.FC = () => {
             </div>
             <h2 className="text-xl font-semibold mb-2 text-error">Unable to Load Skill Tree</h2>
             <p className="text-text-secondary mb-6">{error}</p>
-            <Link 
-              to="/getting-started" 
-              className="inline-flex items-center px-4 py-2 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200"
-            >
-              Generate New Skill Tree
-            </Link>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="px-4 py-2 border border-border-secondary hover:border-accent-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200"
+              >
+                Upload a saved tree
+              </button>
+              <Link to="/getting-started" className="px-4 py-2 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200">
+                Generate New
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  const depthMap = getDepthMap();
+  const tierLabels = ["Root", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5"];
+
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
-      {/* Navigation */}
+    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+      {/* Nav */}
       <nav className="border-b border-border-primary sticky top-0 bg-bg-primary/95 backdrop-blur-sm z-40">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">
-            hobbitify
-          </Link>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-text-secondary">
-              {completedSkills.size}/{skills.length} completed
+        <div className="max-w-[1600px] mx-auto px-6 py-3 flex justify-between items-center">
+          <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">hobbitify</Link>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-text-muted hidden sm:block">
+              {completedSkills.size}/{skills.length} done
             </span>
-            <Link 
-              to="/getting-started" 
-              className="text-text-secondary hover:text-text-primary transition-colors"
+            {/* Progress pill */}
+            <div className="w-24 h-1.5 bg-bg-secondary rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-accent-primary to-success rounded-full transition-all duration-500"
+                style={{ width: `${skills.length ? (completedSkills.size / skills.length) * 100 : 0}%` }}
+              />
+            </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="px-3 py-1.5 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-xs"
             >
-              Generate New
-            </Link>
-            <button className="px-4 py-2 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200">
-              Export Tree
+              Load
             </button>
+            <button
+              onClick={handleExport}
+              className="px-3 py-1.5 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-xs"
+            >
+              Export
+            </button>
+            <Link
+              to="/getting-started"
+              className="px-3 py-1.5 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200 text-xs font-medium"
+            >
+              New
+            </Link>
           </div>
         </div>
       </nav>
 
-      <div className="flex">
-        {/* Main Skill Tree */}
-        <div className="flex-1 p-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold mb-2">Your Learning Journey</h1>
-              <p className="text-text-secondary">
-                Click on any skill to see detailed information. Complete skills in order to unlock new ones.
-              </p>
-              
-              {/* Progress Bar */}
-              <div className="mt-4 max-w-md mx-auto">
-                <div className="flex justify-between text-sm text-text-secondary mb-2">
-                  <span>Progress</span>
-                  <span>{Math.round((completedSkills.size / skills.length) * 100)}%</span>
-                </div>
-                <div className="w-full bg-bg-secondary rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-accent-primary to-success h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${(completedSkills.size / skills.length) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
+      <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
 
-            {skills.length > 0 ? (
-              <div className="overflow-x-auto pb-8">
-                <div className="min-w-max flex justify-center space-x-8">
-                  {rootSkills.map((skill, index) => (
-                    <SkillNode
-                      key={index}
-                      skill={skill}
-                      allSkills={skills}
-                      level={0}
-                      onSelect={setSelectedSkill}
-                      selectedSkill={selectedSkill}
-                      completedSkills={completedSkills}
-                      onComplete={handleSkillComplete}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <div className="animate-spin w-8 h-8 border-2 border-accent-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p className="text-text-secondary">Loading your skill tree...</p>
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Tiling grid */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="max-w-[1400px] mx-auto space-y-6">
+            {Array.from(depthMap.entries())
+              .sort(([a], [b]) => a - b)
+              .map(([depth, levelSkills]) => {
+                // Auto-size columns: more items = more columns, like hyprland
+                const count = levelSkills.length;
+                const gridCols =
+                  count === 1 ? "grid-cols-1" :
+                  count === 2 ? "grid-cols-1 sm:grid-cols-2" :
+                  count === 3 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" :
+                  count === 4 ? "grid-cols-2 lg:grid-cols-4" :
+                  "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
-        {/* Skill Details Sidebar */}
-        {selectedSkill && (
-          <div className="w-80 bg-bg-secondary border-l border-border-primary p-6 sticky top-16 h-screen overflow-y-auto">
-            <div className="mb-4">
-              <button 
-                onClick={() => setSelectedSkill(null)}
-                className="text-text-muted hover:text-text-secondary transition-colors mb-4"
-              >
-                ← Back to Tree
-              </button>
-              
-              {(() => {
-                const skillData = getSelectedSkillData();
-                if (!skillData) return null;
-                
-                const isCompleted = completedSkills.has(skillData.Name);
-                const isUnlocked = isSkillUnlocked(skillData.Name);
-                
                 return (
-                  <div>
-                    <div className="flex items-center mb-4">
-                      <div className={`w-3 h-3 rounded-full mr-3 ${
-                        isCompleted ? 'bg-success' :
-                        skillData.Difficulty <= 30 ? 'bg-emerald-400' :
-                        skillData.Difficulty <= 50 ? 'bg-blue-400' :
-                        skillData.Difficulty <= 70 ? 'bg-amber-400' : 'bg-red-400'
-                      }`}></div>
-                      <span className="text-sm text-text-muted">
-                        {isCompleted ? 'Completed' : `Difficulty ${skillData.Difficulty}/100`}
+                  <div key={depth}>
+                    {/* Tier label */}
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+                        {tierLabels[depth] || `Tier ${depth}`}
                       </span>
+                      <div className="flex-1 h-px bg-border-primary" />
+                      <span className="text-[10px] text-text-muted">{levelSkills.length} skill{levelSkills.length > 1 ? "s" : ""}</span>
                     </div>
-                    
-                    <h2 className="text-xl font-bold mb-4">{skillData.Name}</h2>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-sm font-medium text-text-secondary mb-2">Description</h3>
-                        <p className="text-text-primary">{skillData.Description}</p>
-                      </div>
-                      
-                      <div>
-                        <h3 className="text-sm font-medium text-text-secondary mb-2">How to Complete</h3>
-                        <p className="text-text-primary">{skillData.Completion}</p>
-                      </div>
-                      
-                      {skillData.Children && skillData.Children.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-medium text-text-secondary mb-2">This unlocks</h3>
-                          <div className="space-y-2">
-                            {skillData.Children.map((childName, index) => {
-                              const childUnlocked = isSkillUnlocked(childName);
-                              const childCompleted = completedSkills.has(childName);
-                              
-                              return (
-                                <button
-                                  key={index}
-                                  onClick={() => setSelectedSkill(childName)}
-                                  className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors duration-200 ${
-                                    childCompleted ? 'bg-success/10 text-success border border-success/20' :
-                                    childUnlocked ? 'bg-bg-tertiary hover:bg-bg-hover text-text-primary border border-border-secondary' :
-                                    'bg-bg-secondary text-text-muted border border-border-primary opacity-60'
-                                  }`}
-                                  disabled={!childUnlocked}
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <span>{childName}</span>
-                                    {childCompleted && (
-                                      <svg className="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                      </svg>
-                                    )}
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                      
-                      <div className="pt-4 border-t border-border-primary">
-                        {isCompleted ? (
-                          <div className="w-full px-4 py-3 bg-success/10 border border-success/20 text-success rounded-lg font-medium text-center">
-                            ✓ Completed
-                          </div>
-                        ) : isUnlocked ? (
-                          <button 
-                            onClick={() => handleSkillComplete(skillData.Name)}
-                            className="w-full px-4 py-3 bg-accent-primary hover:bg-accent-hover text-white rounded-lg font-medium transition-all duration-200 hover:scale-105"
-                          >
-                            Mark as Complete
-                          </button>
-                        ) : (
-                          <div className="w-full px-4 py-3 bg-bg-tertiary border border-border-primary text-text-muted rounded-lg font-medium text-center">
-                            Complete prerequisites first
-                          </div>
-                        )}
-                      </div>
+                    <div className={`grid ${gridCols} gap-3`}>
+                      {levelSkills.map((skill) => (
+                        <SkillNode
+                          key={skill.Name}
+                          skill={skill}
+                          isSelected={selectedSkill === skill.Name}
+                          isCompleted={completedSkills.has(skill.Name)}
+                          isUnlocked={isSkillUnlocked(skill.Name)}
+                          isRoot={isRoot(skill)}
+                          childCount={skill.Children?.length || 0}
+                          onSelect={setSelectedSkill}
+                          onComplete={handleSkillComplete}
+                        />
+                      ))}
                     </div>
                   </div>
                 );
+              })}
+          </div>
+        </div>
+
+        {/* Detail sidebar */}
+        {selectedData && (
+          <div className="w-80 border-l border-border-primary bg-bg-secondary flex-shrink-0 overflow-y-auto">
+            <div className="p-5 space-y-5">
+              <button
+                onClick={() => setSelectedSkill(null)}
+                className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+              >
+                ← close
+              </button>
+
+              {/* Difficulty bar */}
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className={`text-xs font-medium ${getDifficultyTier(selectedData.Difficulty).color.split(" ").pop()}`}>
+                    {getDifficultyTier(selectedData.Difficulty).label}
+                  </span>
+                  <span className="text-xs text-text-muted">{selectedData.Difficulty}/100</span>
+                </div>
+                <div className="w-full h-1.5 bg-bg-primary rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      selectedData.Difficulty <= 30 ? "bg-emerald-400" :
+                      selectedData.Difficulty <= 50 ? "bg-blue-400" :
+                      selectedData.Difficulty <= 70 ? "bg-amber-400" : "bg-red-400"
+                    }`}
+                    style={{ width: `${selectedData.Difficulty}%` }}
+                  />
+                </div>
+              </div>
+
+              <h2 className="text-lg font-bold leading-snug">{selectedData.Name}</h2>
+
+              <div>
+                <h3 className="text-xs font-medium text-text-muted mb-1 uppercase tracking-wide">Description</h3>
+                <p className="text-sm text-text-secondary leading-relaxed">{selectedData.Description}</p>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-medium text-text-muted mb-1 uppercase tracking-wide">How to Complete</h3>
+                <p className="text-sm text-text-primary leading-relaxed">{selectedData.Completion}</p>
+              </div>
+
+              {selectedData.Children && selectedData.Children.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-medium text-text-muted mb-2 uppercase tracking-wide">Unlocks</h3>
+                  <div className="space-y-1.5">
+                    {selectedData.Children.map((childName) => {
+                      const childCompleted = completedSkills.has(childName);
+                      const childUnlocked = isSkillUnlocked(childName);
+                      return (
+                        <button
+                          key={childName}
+                          onClick={() => childUnlocked && setSelectedSkill(childName)}
+                          disabled={!childUnlocked}
+                          className={`block w-full text-left px-3 py-2 rounded-lg text-xs transition-colors ${
+                            childCompleted ? "bg-success/10 text-success border border-success/20" :
+                            childUnlocked ? "bg-bg-tertiary hover:bg-bg-hover text-text-primary border border-border-secondary" :
+                            "bg-bg-primary text-text-muted border border-border-primary opacity-50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{childName}</span>
+                            {childCompleted && (
+                              <svg className="w-3.5 h-3.5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Parent link */}
+              {(() => {
+                const parent = getParent(selectedData.Name);
+                if (!parent) return null;
+                return (
+                  <div>
+                    <h3 className="text-xs font-medium text-text-muted mb-1 uppercase tracking-wide">Requires</h3>
+                    <button
+                      onClick={() => setSelectedSkill(parent.Name)}
+                      className="text-xs text-accent-light hover:text-accent-primary transition-colors"
+                    >
+                      ← {parent.Name}
+                    </button>
+                  </div>
+                );
               })()}
+
+              <div className="pt-3 border-t border-border-primary">
+                {completedSkills.has(selectedData.Name) ? (
+                  <div className="w-full px-4 py-2.5 bg-success/10 border border-success/20 text-success rounded-lg text-sm font-medium text-center">
+                    ✓ Completed
+                  </div>
+                ) : isSkillUnlocked(selectedData.Name) ? (
+                  <button
+                    onClick={() => handleSkillComplete(selectedData.Name)}
+                    className="w-full px-4 py-2.5 bg-accent-primary hover:bg-accent-hover text-white rounded-lg text-sm font-medium transition-all duration-200"
+                  >
+                    Mark as Complete
+                  </button>
+                ) : (
+                  <div className="w-full px-4 py-2.5 bg-bg-tertiary border border-border-primary text-text-muted rounded-lg text-sm font-medium text-center">
+                    Complete prerequisites first
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

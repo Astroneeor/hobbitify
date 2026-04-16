@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/skill-tree/skillnode.tsx","./src/data/testskilltrees.ts","./src/pages/gettingstarted.tsx","./src/pages/landingpage.tsx","./src/pages/skilltree.tsx","./src/types/skill.ts","./src/utils/apiutils.ts","./src/utils/skilltreeutils.ts"],"version":"5.9.2"}
