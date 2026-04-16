@@ -1,12 +1,45 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CSS_SKILL_TREE } from '../data/testSkillTrees';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const handleExample = () => {
     navigate("/skill-tree", { state: { response: CSS_SKILL_TREE } });
+  };
+
+  const handleLoadClick = () => {
+    setLoadError(null);
+    fileInputRef.current?.click();
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const raw = ev.target?.result;
+        if (typeof raw !== "string") {
+          setLoadError("Unable to read file contents.");
+          return;
+        }
+
+        const parsed = JSON.parse(raw);
+        navigate("/skill-tree", { state: { response: parsed } });
+      } catch {
+        setLoadError("Invalid JSON file. Please pick a valid export.");
+      }
+    };
+    reader.onerror = () => {
+      setLoadError("Failed to read selected file.");
+    };
+    reader.readAsText(file);
+    e.target.value = "";
   };
 
   return (
@@ -84,6 +117,22 @@ const LandingPage: React.FC = () => {
             See Example Tree
           </button>
         </div>
+        <div className="mt-3 flex flex-col items-center">
+          <button
+            onClick={handleLoadClick}
+            className="text-xs text-text-muted hover:text-text-secondary underline underline-offset-2 transition-colors"
+          >
+            Load existing JSON
+          </button>
+          {loadError && <p className="mt-2 text-xs text-error">{loadError}</p>}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json,application/json"
+          onChange={handleImport}
+          className="hidden"
+        />
 
         {/* Feature Preview */}
         <div className="mt-24 grid md:grid-cols-3 gap-8 text-left">

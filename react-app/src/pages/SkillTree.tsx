@@ -3,6 +3,14 @@ import { useLocation, Link } from "react-router-dom";
 import SkillNode from "../components/skill-tree/SkillNode";
 import { Skill, getDifficultyTier } from "../types/skill";
 
+interface ExportedSkillTree {
+  skills: Skill[];
+  progress: {
+    completedSkills: string[];
+    incompleteSkills: string[];
+  };
+}
+
 const SkillTree: React.FC = () => {
   const location = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -19,17 +27,36 @@ const SkillTree: React.FC = () => {
     }
   }, [location.state]);
 
-  const loadSkills = (data: any) => {
+  const loadSkills = (data: unknown) => {
     try {
       const parsed = typeof data === "string" ? JSON.parse(data) : data;
       if (Array.isArray(parsed)) {
-        setSkills(parsed);
+        setSkills(parsed as Skill[]);
         setCompletedSkills(new Set());
         setSelectedSkill(null);
         setError(null);
-      } else {
-        setError("Expected an array of skills.");
+        return;
       }
+
+      if (parsed && typeof parsed === "object" && "skills" in parsed) {
+        const exported = parsed as ExportedSkillTree;
+        if (!Array.isArray(exported.skills)) {
+          setError("Invalid saved format: skills array is missing.");
+          return;
+        }
+
+        const completedFromFile = Array.isArray(exported.progress?.completedSkills)
+          ? exported.progress.completedSkills
+          : [];
+
+        setSkills(exported.skills);
+        setCompletedSkills(new Set(completedFromFile));
+        setSelectedSkill(null);
+        setError(null);
+        return;
+      }
+
+      setError("Expected a skill array or saved export file.");
     } catch {
       setError("Invalid JSON format.");
     }
@@ -82,7 +109,21 @@ const SkillTree: React.FC = () => {
 
   // --- Export ---
   const handleExport = () => {
-    const blob = new Blob([JSON.stringify(skills, null, 2)], { type: "application/json" });
+    const completed = Array.from(completedSkills);
+    const completedSet = new Set(completed);
+    const incomplete = skills
+      .map((skill) => skill.Name)
+      .filter((skillName) => !completedSet.has(skillName));
+
+    const payload: ExportedSkillTree = {
+      skills,
+      progress: {
+        completedSkills: completed,
+        incompleteSkills: incomplete,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

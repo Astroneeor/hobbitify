@@ -1,19 +1,16 @@
 # Hobbitify - AI Coding Instructions
 
 ## Project Overview
-Hobbitify is a skill tree generator that transforms learning goals into interactive, RPG-style skill trees. The app uses Claude 3.5 to generate JSON-formatted skill hierarchies and visualizes them in both vanilla HTML/CSS/JS and React implementations.
+Hobbitify is a skill tree generator that transforms learning goals into interactive, RPG-style skill trees. The app uses Claude 3.5 to generate JSON-formatted skill hierarchies and visualizes them in the React application.
 
-## Architecture & Dual Frontend Pattern
-**Critical**: This project maintains TWO separate frontend implementations:
-- `frontend/` - Original vanilla HTML/CSS/JS prototype 
-- `react-app/` - Modern React/TypeScript/Tailwind implementation
+## Architecture
+**Critical**: This project uses `react-app/` as the frontend implementation.
 
-Both frontends communicate with the same Flask backend hosted on Replit. When making UI changes, consider which implementation to modify based on the context.
+The frontend communicates with the same Flask backend hosted on Replit.
 
 ## Technology Stack
 - **Backend**: Flask server (hosted on Replit)
-- **Modern Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
-- **Legacy Frontend**: Vanilla HTML/CSS/JavaScript
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
 - **AI Integration**: Claude 3.5 via engineered system prompts
 - **Styling**: Custom Tailwind config with dark theme and purple/pink accent colors
 
@@ -61,27 +58,20 @@ cd react-app
 npm run dev        # Start Vite dev server
 npm run build      # TypeScript compile + Vite build
 npm run lint       # ESLint validation
-
-# Legacy frontend - open HTML files directly in browser
 ```
 
 ## Critical Files to Understand
 - `react-app/src/pages/GettingStarted.tsx` - User input and backend communication
 - `react-app/src/pages/SkillTree.tsx` - JSON parsing and root skill filtering
 - `react-app/src/pages/SkillNode.tsx` - Recursive skill tree rendering
-- `frontend/skilltree.html` - Original implementation with fetch patterns
 - `react-app/tailwind.config.js` - Custom color system and animations
 
 ## Common Gotchas
 - Backend expects POST requests, not GET (lesson learned at 1am!)
 - JSON responses may be strings or objects - always parse defensively
 - Skill tree hierarchy requires parent-child relationship filtering
-- Both frontends use different data structures for the same backend API
 - Replit backend URL is hardcoded - update if backend moves
 - **Security**: Removed vulnerable `tailwind@4.0.0` and `axiom` packages - only use `tailwindcss@3.4.12`
-
-## Testing Data
-Use `frontend/Testing shit/skilltree.json` for skill tree structure examples and testing hierarchical rendering without backend calls.
 
 ## Vulnerability Management
 - Removed problematic packages: `tailwind@4.0.0` (not TailwindCSS), `axiom` (unused)

@@ -1,0 +1,29 @@
+# Hobbitify Working Memory
+
+## Repository shape
+- This repo uses `react-app/` as the frontend (React + TypeScript + Vite + Tailwind).
+- Backend code is in `backend/`.
+
+## Where to make changes
+- Default all product/UI work to `react-app/`.
+
+## API and data expectations
+- Backend request payload should use `{ input: string }` for modern flows.
+- Skill data is hierarchical and may arrive as either a JSON string or an object; parse defensively.
+- Preserve root-skill detection via parent/child relationships when rendering trees.
+
+## React app conventions
+- TypeScript first: avoid `any` unless unavoidable.
+- Reuse existing helpers in `src/utils/` and types in `src/types/`.
+- Follow current UI style tokens/classes from Tailwind config (`bg-*`, `text-*`, `accent-*`, `border-*`).
+- Keep components focused and prefer small helper functions over inline complex logic.
+
+## Quality checks
+- For `react-app/` edits, run:
+  - `npm run lint`
+  - `npm run build` for substantial changes
+- Do not commit generated secrets or `.env` values.
+
+## Collaboration defaults
+- If asked to "update UI", assume `react-app/` unless explicitly told otherwise.
+- Keep changes scoped, explain assumptions, and list any follow-up verification steps.

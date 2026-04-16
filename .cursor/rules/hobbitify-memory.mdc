@@ -1,0 +1,31 @@
+---
+description: Hobbitify architecture and coding defaults
+alwaysApply: true
+---
+
+# Hobbitify Rule
+
+## Architecture
+- Treat this as a multi-app repo:
+  - `react-app/` is the primary frontend (React + TS + Tailwind + Vite).
+  - `backend/` is Flask-related support.
+
+## Change targeting
+- Default to changing `react-app/`.
+- If old legacy-frontend references appear, treat them as deprecated unless user explicitly asks for migration work.
+
+## Data and API behavior
+- Keep robust parsing for backend responses (string JSON or object).
+- Preserve tree semantics:
+  - detect root nodes by parent/child relations
+  - avoid breaking unlock/progression logic
+- Prefer request body shape `{ input: string }` for modern API utilities.
+
+## Code style
+- Use existing TypeScript types from `src/types/` and helpers from `src/utils/` before adding new abstractions.
+- Keep components readable: extract helper functions when rendering logic becomes dense.
+- Follow existing Tailwind design tokens (`bg-*`, `text-*`, `accent-*`, `border-*`) for visual consistency.
+
+## Validation
+- After meaningful `react-app/` edits, run `npm run lint`.
+- Run `npm run build` when changes affect routing, types, or shared utilities.
