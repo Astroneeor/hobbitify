@@ -4,17 +4,27 @@ export default {
   theme: {
     extend: {
       colors: {
-        "gray-bg": "#272626",
-        "gray-600": "#343434",
-        "gray-700": "#BDBDBD",
-        "gray-800": "#828282",
-        "primary-100": "#A259FF", // Purple color for elements
-        "primary-200": "#FF62A5", // Pinkish hover color
-        "primary-300": "#7E3AC8", // Darker purple for borders
-        "secondary-100": "#FAC61D", // Yellow for some highlights
-        "secondary-200": "#E0A21D",
-        "secondary-300": "#C6841D",
-        "skill-bg": "#1E1E1E", // Dark background for skill nodes
+        // Buildspace-inspired clean color system
+        "bg-primary": "#0a0a0a", // Deep black background
+        "bg-secondary": "#111111", // Slightly lighter black
+        "bg-tertiary": "#1a1a1a", // Card backgrounds
+        "bg-hover": "#262626", // Hover states
+        
+        "text-primary": "#ffffff", // Pure white text
+        "text-secondary": "#a3a3a3", // Gray text
+        "text-muted": "#737373", // Muted text
+        
+        "accent-primary": "#3b82f6", // Clean blue accent
+        "accent-hover": "#2563eb", // Darker blue for hover
+        "accent-light": "#60a5fa", // Light blue
+        
+        "border-primary": "#262626", // Subtle borders
+        "border-secondary": "#404040", // More visible borders
+        
+        "success": "#10b981", // Green for success states
+        "warning": "#f59e0b", // Orange for warnings
+        "error": "#ef4444", // Red for errors
+        
       },
       fontFamily: {
         Manrope: ["Manrope", "sans-serif"], // Already present, will apply it site-wide
@@ -24,18 +34,34 @@ export default {
           "0%": { transform: "translateX(100%)" },
           "100%": { transform: "translateX(-100%)" },
         },
-      },
-      animation: {
-        marquee: "marquee 10s linear infinite",
-      },
-      keyframes: {
         scroll: {
-          '0%, 100%': { transform: 'translateY(0)' },
+          '0%': { transform: 'translateY(0)' },
           '100%': { transform: 'translateY(-100%)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInLeft: {
+          '0%': { opacity: '0', transform: 'translateX(-30px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        slideInRight: {
+          '0%': { opacity: '0', transform: 'translateX(30px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        pulse: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
         },
       },
       animation: {
-        scroll: 'scroll 10s linear infinite',
+        marquee: "marquee 10s linear infinite",
+        scroll: 'scroll 15s linear infinite',
+        fadeIn: 'fadeIn 0.6s ease-out',
+        slideInLeft: 'slideInLeft 0.6s ease-out',
+        slideInRight: 'slideInRight 0.6s ease-out',
+        pulse: 'pulse 2s ease-in-out infinite',
       },
     },
   },
