@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 # Override per-environment as needed.
 [vars]
 ALLOWED_ORIGIN = "http://localhost:5173"
-SUPABASE_URL = "https://your-project.supabase.co"
+SUPABASE_URL = "https://mbsdkkumccdiabhgyftq.supabase.co"
 
 # Per-IP rate limit applied inside the Worker.
 # Defense-in-depth: pair with a dashboard Rate Limiting Rule on the Worker
@@ -30,7 +30,7 @@ name = "hobbitify-worker"
 
 [env.production.vars]
 ALLOWED_ORIGIN = "https://hobbitify.pages.dev"
-SUPABASE_URL = "https://your-project.supabase.co"
+SUPABASE_URL = "https://mbsdkkumccdiabhgyftq.supabase.co"
 
 [[env.production.ratelimits]]
 name = "RATE_LIMITER"

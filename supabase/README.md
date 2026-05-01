@@ -24,7 +24,10 @@ and the React app.
      allowed redirect URLs (e.g. `https://hobbitify.pages.dev/login`).
 4. **Site URL / redirects.** Authentication -> URL Configuration:
    - Site URL: your production Pages URL.
-   - Additional redirect URLs: `http://localhost:5173/login` for local dev.
+   - Additional redirect URLs (examples):  
+     `http://localhost:5173/login`, `http://localhost:5173/reset-password`,  
+     and the same paths on your production host (password reset emails use
+     `/reset-password`). Magic-link sign-in continues to use `/login`.
 
 ## What the migration does
 

@@ -24,6 +24,7 @@ export type CreateTreeResult =
       code:
         | "TIER_TOTAL_LIMIT"
         | "TIER_GENERATED_LIMIT"
+        | "GLOBAL_GENERATION_CAP"
         | "PROFILE_MISSING"
         | "INVALID_SOURCE"
         | "UNKNOWN";
@@ -33,6 +34,7 @@ export type CreateTreeResult =
 const TIER_CODES = new Set([
   "TIER_TOTAL_LIMIT",
   "TIER_GENERATED_LIMIT",
+  "GLOBAL_GENERATION_CAP",
   "PROFILE_MISSING",
   "INVALID_SOURCE",
 ]);
@@ -95,6 +97,7 @@ export async function createSkillTree(
         code: code as
           | "TIER_TOTAL_LIMIT"
           | "TIER_GENERATED_LIMIT"
+          | "GLOBAL_GENERATION_CAP"
           | "PROFILE_MISSING"
           | "INVALID_SOURCE",
         message: code,
@@ -103,6 +106,21 @@ export async function createSkillTree(
   }
   console.error("create_skill_tree failed", error);
   return { ok: false, code: "UNKNOWN", message: "Database error" };
+}
+
+/** Count of AI-generated trees across all users (for pre-check before LLM). */
+export async function countGlobalGeneratedTrees(
+  client: SupabaseClient,
+): Promise<number> {
+  const { count, error } = await client
+    .from("skill_trees")
+    .select("*", { count: "exact", head: true })
+    .eq("source", "generated");
+  if (error) {
+    console.error("countGlobalGeneratedTrees failed", error);
+    return 0;
+  }
+  return count ?? 0;
 }
 
 export async function fetchProfile(

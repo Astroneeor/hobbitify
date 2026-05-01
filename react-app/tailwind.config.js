@@ -27,7 +27,8 @@ export default {
         
       },
       fontFamily: {
-        Manrope: ["Manrope", "sans-serif"], // Already present, will apply it site-wide
+        Manrope: ["Manrope", "sans-serif"],
+        display: ["Fraunces", "Georgia", "serif"],
       },
       keyframes: {
         marquee: {
@@ -54,6 +55,22 @@ export default {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.05)' },
         },
+        heroKicker: {
+          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        heroLineA: {
+          "0%": { opacity: "0", transform: "translateY(28px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        heroLineB: {
+          "0%": { opacity: "0", transform: "translateY(28px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        heroMotif: {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         marquee: "marquee 10s linear infinite",
@@ -62,6 +79,10 @@ export default {
         slideInLeft: 'slideInLeft 0.6s ease-out',
         slideInRight: 'slideInRight 0.6s ease-out',
         pulse: 'pulse 2s ease-in-out infinite',
+        "hero-kicker": "heroKicker 0.85s ease-out both",
+        "hero-line-a": "heroLineA 1s ease-out 0.08s both",
+        "hero-line-b": "heroLineB 1s ease-out 0.22s both",
+        "hero-motif": "heroMotif 1.15s ease-out 0.38s both",
       },
     },
   },

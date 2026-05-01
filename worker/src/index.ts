@@ -2,6 +2,7 @@ import { generateSkillTreeFromAnthropic } from "./anthropic";
 import { readBearerToken, verifySupabaseJwt, type AuthenticatedUser } from "./auth";
 import { corsHeaders, jsonResponse } from "./cors";
 import {
+  countGlobalGeneratedTrees,
   createSkillTree,
   fetchProfile,
   findSimilarTrees,
@@ -30,6 +31,8 @@ const MIN_INPUT = 3;
 const MAX_INPUT = 500;
 const MAX_TIER_TOTAL = 10;
 const MAX_TIER_GENERATED = 5;
+/** All users combined; must match `0002_global_generation_cap.sql`. */
+const MAX_GLOBAL_AI_GENERATIONS = 10;
 
 interface GenerateBody {
   input?: unknown;
@@ -44,12 +47,30 @@ interface UploadBody {
 }
 
 /**
+ * Opaque response when the platform-wide generation budget is exhausted.
+ * Does not reveal limits or caps to the client.
+ */
+function opaquePlatformBusyResponse(origin: string): Response {
+  return jsonResponse(
+    {
+      error:
+        "We're handling a lot of activity right now. Please try again in a little while.",
+    },
+    503,
+    origin,
+  );
+}
+
+/**
  * Maps a `create_skill_tree` RPC failure to an HTTP response.
  */
 function tierErrorResponse(
   code: string,
   origin: string,
 ): Response {
+  if (code === "GLOBAL_GENERATION_CAP") {
+    return opaquePlatformBusyResponse(origin);
+  }
   if (code === "TIER_TOTAL_LIMIT") {
     return jsonResponse(
       {
@@ -110,7 +131,10 @@ async function authenticate(
     };
   }
   try {
-    const user = await verifySupabaseJwt(token, env.SUPABASE_JWT_SECRET);
+    const user = await verifySupabaseJwt(token, {
+      SUPABASE_URL: env.SUPABASE_URL,
+      SUPABASE_JWT_SECRET: env.SUPABASE_JWT_SECRET,
+    });
     return { user };
   } catch {
     return {
@@ -204,6 +228,12 @@ async function handleGenerate(
         origin,
       );
     }
+  }
+
+  if (
+    (await countGlobalGeneratedTrees(admin)) >= MAX_GLOBAL_AI_GENERATIONS
+  ) {
+    return opaquePlatformBusyResponse(origin);
   }
 
   const result = await generateSkillTreeFromAnthropic(

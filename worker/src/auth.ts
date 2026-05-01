@@ -1,4 +1,9 @@
-import { jwtVerify } from "jose";
+import {
+  createRemoteJWKSet,
+  decodeProtectedHeader,
+  jwtVerify,
+  type JWTPayload,
+} from "jose";
 
 export interface AuthenticatedUser {
   id: string;
@@ -8,28 +13,56 @@ export interface AuthenticatedUser {
 
 const encoder = new TextEncoder();
 
+function supabaseIssuer(supabaseUrl: string): string {
+  const base = supabaseUrl.replace(/\/+$/, "");
+  return `${base}/auth/v1`;
+}
+
+export interface SupabaseAuthEnv {
+  SUPABASE_URL: string;
+  SUPABASE_JWT_SECRET: string;
+}
+
 /**
- * Validates a Supabase-issued JWT (HS256, signed with the project's JWT
- * secret) and returns the authenticated user. Throws a generic Error on any
- * failure so callers can map a single 401 response.
+ * Validates a Supabase-issued user access token.
+ *
+ * - **HS256**: legacy projects (shared JWT secret in dashboard).
+ * - **ES256 / other asymmetric**: current Supabase default; verified via JWKS
+ *   at `{SUPABASE_URL}/auth/v1/.well-known/jwks.json`.
  */
 export async function verifySupabaseJwt(
   token: string,
-  jwtSecret: string,
+  env: SupabaseAuthEnv,
 ): Promise<AuthenticatedUser> {
   if (!token) throw new Error("Missing token");
-  if (!jwtSecret) throw new Error("Missing JWT secret");
 
-  const { payload } = await jwtVerify(token, encoder.encode(jwtSecret), {
-    algorithms: ["HS256"],
-  });
+  const { SUPABASE_URL, SUPABASE_JWT_SECRET } = env;
+  const issuer = supabaseIssuer(SUPABASE_URL);
+  const header = decodeProtectedHeader(token);
+  const alg = header.alg;
+
+  let payload: JWTPayload;
+
+  if (alg === "HS256") {
+    if (!SUPABASE_JWT_SECRET) throw new Error("Missing JWT secret");
+    ({ payload } = await jwtVerify(
+      token,
+      encoder.encode(SUPABASE_JWT_SECRET),
+      { algorithms: ["HS256"] },
+    ));
+  } else {
+    const base = SUPABASE_URL.replace(/\/+$/, "");
+    const jwks = createRemoteJWKSet(
+      new URL(`${base}/auth/v1/.well-known/jwks.json`),
+    );
+    ({ payload } = await jwtVerify(token, jwks, { issuer }));
+  }
 
   const sub = typeof payload.sub === "string" ? payload.sub : null;
   if (!sub) throw new Error("Invalid token: no sub");
 
   const role = typeof payload.role === "string" ? payload.role : undefined;
   if (role && role !== "authenticated") {
-    // Reject anon / service tokens reaching the user-facing routes.
     throw new Error("Invalid token: wrong role");
   }
 

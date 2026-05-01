@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { LogoutButton } from "../components/auth/LogoutButton";
 import { useAuth } from "../contexts/AuthContext";
 import type { ProfileRow, SkillTreeRow } from "../lib/supabase";
 import { supabase } from "../lib/supabase";
@@ -81,6 +82,7 @@ const Library: React.FC = () => {
             >
               Upload JSON
             </Link>
+            <LogoutButton className="px-3 py-1.5 text-text-secondary hover:text-text-primary text-xs transition-colors" />
           </div>
         </div>
       </nav>

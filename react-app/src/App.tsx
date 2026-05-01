@@ -4,6 +4,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { RequireAuth } from "./components/RequireAuth";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import GettingStarted from "./pages/GettingStarted";
 import SkillTree from "./pages/SkillTree";
 import Library from "./pages/Library";
@@ -17,6 +19,8 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route
               path="/getting-started"
               element={

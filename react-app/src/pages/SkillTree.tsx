@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, Link, useNavigate, useSearchParams } from "react-router-dom";
-import SkillNode from "../components/skill-tree/SkillNode";
+import { LogoutButton } from "../components/auth/LogoutButton";
+import SkillTreeGraph from "../components/skill-tree/SkillTreeGraph";
 import { Skill, getDifficultyTier } from "../types/skill";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
@@ -112,34 +113,6 @@ const SkillTree: React.FC = () => {
 
   const handleSkillComplete = (skillName: string) => {
     setCompletedSkills((prev) => new Set([...prev, skillName]));
-  };
-
-  // --- Tiling: group skills by depth level ---
-  const getDepthMap = (): Map<number, Skill[]> => {
-    const depthMap = new Map<number, Skill[]>();
-    const visited = new Set<string>();
-
-    const walk = (name: string, depth: number) => {
-      if (visited.has(name)) return;
-      visited.add(name);
-      const skill = skills.find((s) => s.Name === name);
-      if (!skill) return;
-      if (!depthMap.has(depth)) depthMap.set(depth, []);
-      depthMap.get(depth)!.push(skill);
-      skill.Children?.forEach((c) => walk(c, depth + 1));
-    };
-
-    skills.filter(isRoot).forEach((s) => walk(s.Name, 0));
-
-    // catch orphans
-    skills.forEach((s) => {
-      if (!visited.has(s.Name)) {
-        if (!depthMap.has(0)) depthMap.set(0, []);
-        depthMap.get(0)!.push(s);
-      }
-    });
-
-    return depthMap;
   };
 
   // --- Export ---
@@ -263,9 +236,6 @@ const SkillTree: React.FC = () => {
     );
   }
 
-  const depthMap = getDepthMap();
-  const tierLabels = ["Root", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5"];
-
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
       {/* Nav */}
@@ -310,6 +280,9 @@ const SkillTree: React.FC = () => {
                 Delete
               </button>
             )}
+            {session && (
+              <LogoutButton className="px-3 py-1.5 text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-xs" />
+            )}
           </div>
         </div>
       </nav>
@@ -317,51 +290,15 @@ const SkillTree: React.FC = () => {
       <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Tiling grid */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-          <div className="max-w-[1400px] mx-auto space-y-6">
-            {Array.from(depthMap.entries())
-              .sort(([a], [b]) => a - b)
-              .map(([depth, levelSkills]) => {
-                // Auto-size columns: more items = more columns, like hyprland
-                const count = levelSkills.length;
-                const gridCols =
-                  count === 1 ? "grid-cols-1" :
-                  count === 2 ? "grid-cols-1 sm:grid-cols-2" :
-                  count === 3 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" :
-                  count === 4 ? "grid-cols-2 lg:grid-cols-4" :
-                  "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
-
-                return (
-                  <div key={depth}>
-                    {/* Tier label */}
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
-                        {tierLabels[depth] || `Tier ${depth}`}
-                      </span>
-                      <div className="flex-1 h-px bg-border-primary" />
-                      <span className="text-[10px] text-text-muted">{levelSkills.length} skill{levelSkills.length > 1 ? "s" : ""}</span>
-                    </div>
-                    <div className={`grid ${gridCols} gap-3`}>
-                      {levelSkills.map((skill) => (
-                        <SkillNode
-                          key={skill.Name}
-                          skill={skill}
-                          isSelected={selectedSkill === skill.Name}
-                          isCompleted={completedSkills.has(skill.Name)}
-                          isUnlocked={isSkillUnlocked(skill.Name)}
-                          isRoot={isRoot(skill)}
-                          childCount={skill.Children?.length || 0}
-                          onSelect={setSelectedSkill}
-                          onComplete={handleSkillComplete}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
+        <SkillTreeGraph
+          skills={skills}
+          completedSkills={completedSkills}
+          selectedSkill={selectedSkill}
+          isRoot={isRoot}
+          isSkillUnlocked={isSkillUnlocked}
+          onSelect={setSelectedSkill}
+          onComplete={handleSkillComplete}
+        />
 
         {/* Detail sidebar */}
         {selectedData && (

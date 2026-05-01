@@ -11,6 +11,8 @@ interface SkillNodeProps {
   childCount: number;
   onSelect: (skillName: string) => void;
   onComplete: (skillName: string) => void;
+  /** Tighter card for graph layout (line-clamp, smaller type). */
+  compact?: boolean;
 }
 
 const SkillNode: React.FC<SkillNodeProps> = ({
@@ -22,6 +24,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   childCount,
   onSelect,
   onComplete,
+  compact = false,
 }) => {
   const handleComplete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -51,17 +54,19 @@ const SkillNode: React.FC<SkillNodeProps> = ({
 
   return (
     <div
+      data-no-pan
       onClick={() => isUnlocked && onSelect(skill.Name)}
       className={`
-        relative border rounded-xl p-4 transition-all duration-200 flex flex-col
+        relative border rounded-xl transition-all duration-200 flex flex-col
+        ${compact ? "p-3" : "p-4"}
         ${borderColor} ${bgColor}
         ${isUnlocked ? "cursor-pointer" : "cursor-not-allowed"}
         ${isSelected ? "ring-1 ring-accent-primary/40 shadow-lg shadow-accent-primary/10" : ""}
       `}
     >
       {/* Top row: name + status */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className={`font-semibold text-sm leading-snug flex-1 ${!isUnlocked ? "text-text-muted" : "text-text-primary"}`}>
+      <div className={`flex items-start justify-between gap-2 ${compact ? "mb-1.5" : "mb-2"}`}>
+        <h3 className={`font-semibold ${compact ? "text-xs" : "text-sm"} leading-snug flex-1 ${!isUnlocked ? "text-text-muted" : "text-text-primary"}`}>
           {isRoot && <span className="text-accent-light mr-1">◆</span>}
           {skill.Name}
         </h3>
@@ -79,13 +84,15 @@ const SkillNode: React.FC<SkillNodeProps> = ({
       </div>
 
       {/* Description */}
-      <p className={`text-xs leading-relaxed mb-3 flex-1 ${!isUnlocked ? "text-text-muted/60" : "text-text-secondary"}`}>
+      <p
+        className={`${compact ? "text-[11px] mb-2 line-clamp-2" : "text-xs mb-3"} leading-relaxed flex-1 ${!isUnlocked ? "text-text-muted/60" : "text-text-secondary"}`}
+      >
         {skill.Description}
       </p>
 
       {/* Bottom row: difficulty badge + unlocks count */}
-      <div className="flex items-center justify-between gap-2 mt-auto">
-        <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${difficultyColorClass}`}>
+      <div className={`flex items-center justify-between gap-2 mt-auto ${compact ? "flex-wrap" : ""}`}>
+        <div className={`inline-flex items-center px-2 py-0.5 rounded-full ${compact ? "text-[9px]" : "text-[10px]"} font-medium border ${difficultyColorClass}`}>
           {difficultyText}
         </div>
         {childCount > 0 && (

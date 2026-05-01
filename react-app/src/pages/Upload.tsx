@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { LogoutButton } from "../components/auth/LogoutButton";
 import { Turnstile } from "../components/Turnstile";
 import { requestUpload } from "../utils/apiUtils";
 import { parseSkillTreeResponse } from "../utils/skillTreeUtils";
@@ -106,12 +107,15 @@ const Upload: React.FC = () => {
           <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">
             hobbitify
           </Link>
-          <Link
-            to="/library"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
-          >
-            Library
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/library"
+              className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            >
+              Library
+            </Link>
+            <LogoutButton className="text-sm text-text-secondary hover:text-text-primary transition-colors" />
+          </div>
         </div>
       </nav>
 

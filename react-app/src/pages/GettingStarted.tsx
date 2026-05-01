@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { LogoutButton } from "../components/auth/LogoutButton";
 import { SimilarityDialog } from "../components/SimilarityDialog";
 import { Turnstile } from "../components/Turnstile";
 import {
@@ -152,6 +153,7 @@ const GettingStarted: React.FC = () => {
             >
               Upload
             </Link>
+            <LogoutButton className="text-text-secondary hover:text-text-primary transition-colors" />
           </div>
         </div>
       </nav>
