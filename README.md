@@ -116,11 +116,23 @@ npm run deploy -- --env production
 
 1. Connect the GitHub repo.
 2. Root directory: `react-app`
-3. Build: `npm ci && npm run build`
-4. Output: `dist`
+3. Build: `npm ci && npm run build` (or `npm run build` if deps are cached)
+4. **Build output directory: `dist`** — must be exactly `dist` (relative to the
+   root directory). If this is wrong or empty, the deploy succeeds but the site
+   is blank because `index.html` still points at `/src/main.tsx` from source or
+   assets are missing.
 5. Environment variables (production):  
    `VITE_BACKEND_URL`, `VITE_TURNSTILE_SITE_KEY`, `VITE_SUPABASE_URL`,
    `VITE_SUPABASE_ANON_KEY`
+
+**Still a blank page after fixing the output directory?** In the browser, use
+**View Page Source** (not the Elements panel). The built site must contain a
+tag like `src="/assets/index-….js"`. If you instead see `src="/src/main.tsx"`,
+Cloudflare is still serving the **source** `index.html`, not Vite’s output under
+`dist/` — double-check the build output path and redeploy. Then open DevTools →
+**Network**: confirm that JS/CSS requests return **200** (not 404 or a redirect
+to HTML). **Console** shows any thrown errors if the bundle loads but React
+crashes.
 
 ### Turnstile
 
