@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="hobbitify">
+  <rect width="32" height="32" rx="8" fill="#0a0a0a"/>
+  <path
+    d="M7 23 L11 11 L16 17 L21 7 L25 23"
+    fill="none"
+    stroke="#3b82f6"
+    stroke-width="2.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="11" cy="11" r="2.2" fill="#60a5fa"/>
+  <circle cx="16" cy="17" r="2.2" fill="#60a5fa"/>
+  <circle cx="21" cy="7" r="2.2" fill="#93c5fd"/>
+</svg>
