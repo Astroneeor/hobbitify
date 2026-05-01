@@ -1,0 +1,18 @@
+# Copy this file to `.dev.vars` and fill in real values for `wrangler dev`.
+# `.dev.vars` is gitignored. In production these are set via:
+#   wrangler secret put ANTHROPIC_API_KEY        --env production
+#   wrangler secret put TURNSTILE_SECRET_KEY     --env production
+#   wrangler secret put SUPABASE_JWT_SECRET      --env production
+#   wrangler secret put SUPABASE_SERVICE_ROLE_KEY --env production
+
+ANTHROPIC_API_KEY="sk-ant-..."
+
+# Use the Turnstile sandbox secret for local development:
+#   1x0000000000000000000000000000000AA  -> always passes
+#   2x0000000000000000000000000000000AA  -> always fails
+TURNSTILE_SECRET_KEY="1x0000000000000000000000000000000AA"
+
+# Supabase: copy from Project Settings -> API.
+# JWT secret is under Project Settings -> API -> JWT Settings.
+SUPABASE_JWT_SECRET="your-supabase-jwt-secret"
+SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"

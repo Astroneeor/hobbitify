@@ -1,0 +1,23 @@
+{
+  "name": "hobbitify-worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker that generates Hobbitify skill trees via the Anthropic API.",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
+    "@supabase/supabase-js": "^2.46.1",
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250416.0",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.36.0"
+  }
+}

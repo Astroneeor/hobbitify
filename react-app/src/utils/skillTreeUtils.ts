@@ -36,12 +36,13 @@ export const canUnlockSkill = (
   );
 };
 
-export const parseSkillTreeResponse = (response: any): Skill[] => {
+export const parseSkillTreeResponse = (response: unknown): Skill[] => {
   try {
     if (typeof response === 'string') {
-      return JSON.parse(response);
+      const parsed = JSON.parse(response) as unknown;
+      return Array.isArray(parsed) ? (parsed as Skill[]) : [];
     }
-    return Array.isArray(response) ? response : [];
+    return Array.isArray(response) ? (response as Skill[]) : [];
   } catch (error) {
     console.error('Failed to parse skill tree response:', error);
     return [];

@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate, useSearchParams } from "react-router-dom";
 import SkillNode from "../components/skill-tree/SkillNode";
 import { Skill, getDifficultyTier } from "../types/skill";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../contexts/AuthContext";
+import { parseSkillTreeResponse } from "../utils/skillTreeUtils";
 
 interface ExportedSkillTree {
   skills: Skill[];
@@ -13,19 +16,51 @@ interface ExportedSkillTree {
 
 const SkillTree: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { session } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [completedSkills, setCompletedSkills] = useState<Set<string>>(new Set());
+  const [treeId, setTreeId] = useState<string | null>(null);
+  const [loadingDb, setLoadingDb] = useState(false);
 
   useEffect(() => {
+    const id = searchParams.get("id");
+    setTreeId(id);
+
     if (location.state?.response) {
       loadSkills(location.state.response);
-    } else {
-      setError("No skill tree data found. Please go back and generate a skill tree first.");
+      return;
     }
-  }, [location.state]);
+
+    if (id && session?.access_token) {
+      setLoadingDb(true);
+      setError(null);
+      void (async () => {
+        const { data, error: qError } = await supabase
+          .from("skill_trees")
+          .select("skills")
+          .eq("id", id)
+          .single();
+        setLoadingDb(false);
+        if (qError || !data) {
+          setError("Could not load this skill tree from your library.");
+          return;
+        }
+        loadSkills(parseSkillTreeResponse(data.skills));
+      })();
+      return;
+    }
+
+    if (!id) {
+      setError("No skill tree data found. Please go back and generate a skill tree first.");
+    } else if (!session?.access_token) {
+      setError("Sign in to open saved trees from your library.");
+    }
+  }, [searchParams, location.state, session?.access_token]);
 
   const loadSkills = (data: unknown) => {
     try {
@@ -150,8 +185,36 @@ const SkillTree: React.FC = () => {
     e.target.value = "";
   };
 
+  const handleDeleteFromLibrary = async () => {
+    if (!treeId) return;
+    if (!session) {
+      setError("Sign in to manage library trees.");
+      return;
+    }
+    if (!window.confirm("Remove this tree from your library? This cannot be undone.")) {
+      return;
+    }
+    const { error: delError } = await supabase
+      .from("skill_trees")
+      .delete()
+      .eq("id", treeId);
+    if (delError) {
+      setError(delError.message);
+      return;
+    }
+    navigate("/library");
+  };
+
   // --- Sidebar data ---
   const selectedData = skills.find((s) => s.Name === selectedSkill);
+
+  if (loadingDb && skills.length === 0 && !error) {
+    return (
+      <div className="min-h-screen bg-bg-primary text-text-primary flex items-center justify-center">
+        <div className="text-text-muted text-sm animate-pulse">Loading skill tree...</div>
+      </div>
+    );
+  }
 
   // --- Error state ---
   if (error && skills.length === 0) {
@@ -238,6 +301,15 @@ const SkillTree: React.FC = () => {
             >
               New
             </Link>
+            {treeId && session && (
+              <button
+                type="button"
+                onClick={handleDeleteFromLibrary}
+                className="px-3 py-1.5 border border-error/40 text-error hover:bg-error/10 rounded-lg transition-all duration-200 text-xs"
+              >
+                Delete
+              </button>
+            )}
           </div>
         </div>
       </nav>
