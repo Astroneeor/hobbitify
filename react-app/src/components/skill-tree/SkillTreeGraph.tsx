@@ -134,13 +134,17 @@ const SkillTreeGraph: React.FC<SkillTreeGraphProps> = ({
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
+      // Capture phase + stopPropagation helps prevent scroll chaining to the
+      // document on production (Chrome scroll chaining; passive root listeners).
       e.preventDefault();
+      e.stopPropagation();
       const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
       zoomFromViewportPoint(e.clientX, e.clientY, factor);
     };
 
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
+    const opts: AddEventListenerOptions = { passive: false, capture: true };
+    el.addEventListener("wheel", onWheel, opts);
+    return () => el.removeEventListener("wheel", onWheel, opts);
   }, [zoomFromViewportPoint]);
 
   const onPointerDown = useCallback(
@@ -223,7 +227,7 @@ const SkillTreeGraph: React.FC<SkillTreeGraphProps> = ({
         ref={viewportRef}
         role="application"
         aria-label="Skill tree map"
-        className="flex-1 min-h-[320px] overflow-hidden bg-bg-primary cursor-grab active:cursor-grabbing touch-none select-none"
+        className="flex-1 min-h-[320px] overflow-hidden overscroll-contain bg-bg-primary cursor-grab active:cursor-grabbing touch-none select-none"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

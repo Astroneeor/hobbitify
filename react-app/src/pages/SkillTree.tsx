@@ -237,7 +237,7 @@ const SkillTree: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+    <div className="h-[100dvh] max-h-[100dvh] min-h-0 flex flex-col overflow-hidden bg-bg-primary text-text-primary">
       {/* Nav */}
       <nav className="border-b border-border-primary sticky top-0 bg-bg-primary/95 backdrop-blur-sm z-40">
         <div className="max-w-[1600px] mx-auto px-6 py-3 flex justify-between items-center">
@@ -289,7 +289,7 @@ const SkillTree: React.FC = () => {
 
       <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden overscroll-contain">
         <SkillTreeGraph
           skills={skills}
           completedSkills={completedSkills}
