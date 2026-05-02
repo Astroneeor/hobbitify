@@ -38,12 +38,12 @@ const SkillTree: React.FC = () => {
       void (async () => {
         const { data, error: qError } = await supabase
           .from("skill_trees")
-          .select("skills")
+          .select("skills, completed_skills")
           .eq("id", id)
           .single();
         setLoadingDb(false);
         if (qError || !data) { setError("Could not load this skill tree from your library."); return; }
-        loadSkills(parseSkillTreeResponse(data.skills));
+        loadSkills(parseSkillTreeResponse(data.skills), data.completed_skills ?? []);
       })();
       return;
     }
@@ -52,18 +52,24 @@ const SkillTree: React.FC = () => {
     else if (!session?.access_token) setError("Sign in to open saved trees from your library.");
   }, [searchParams, location.state, session?.access_token]);
 
-  const loadSkills = (data: unknown) => {
+  const loadSkills = (data: unknown, savedProgress: string[] = []) => {
     try {
       const parsed = typeof data === "string" ? JSON.parse(data) : data;
       if (Array.isArray(parsed)) {
-        setSkills(parsed as Skill[]); setCompletedSkills(new Set()); setSelectedSkill(null); setError(null);
+        setSkills(parsed as Skill[]); setCompletedSkills(new Set(savedProgress)); setSelectedSkill(null); setError(null);
         return;
       }
       if (parsed && typeof parsed === "object" && "skills" in parsed) {
         const exported = parsed as ExportedSkillTree;
         if (!Array.isArray(exported.skills)) { setError("Invalid saved format: skills array is missing."); return; }
+        // DB progress takes priority over exported file progress
+        const completedFromFile = savedProgress.length
+          ? savedProgress
+          : Array.isArray(exported.progress?.completedSkills)
+            ? exported.progress.completedSkills
+            : [];
         setSkills(exported.skills);
-        setCompletedSkills(new Set(Array.isArray(exported.progress?.completedSkills) ? exported.progress.completedSkills : []));
+        setCompletedSkills(new Set(completedFromFile));
         setSelectedSkill(null); setError(null);
         return;
       }
@@ -78,8 +84,24 @@ const SkillTree: React.FC = () => {
     return !parent || completedSkills.has(parent.Name);
   };
 
-  const handleSkillComplete = (name: string) =>
-    setCompletedSkills((prev) => new Set([...prev, name]));
+  const saveProgress = (updated: Set<string>) => {
+    if (!treeId || !session) return;
+    void supabase
+      .from("skill_trees")
+      .update({ completed_skills: Array.from(updated) })
+      .eq("id", treeId)
+      .then(({ error: e }) => {
+        if (e) console.error("[hobbitify] progress save failed:", e.message);
+      });
+  };
+
+  const handleSkillComplete = (name: string) => {
+    setCompletedSkills((prev) => {
+      const next = new Set([...prev, name]);
+      saveProgress(next);
+      return next;
+    });
+  };
 
   const handleExport = () => {
     const completed  = Array.from(completedSkills);

@@ -35,6 +35,7 @@ export interface SkillTreeRow {
   query_normalized: string;
   source: "generated" | "uploaded";
   skills: unknown;
+  completed_skills: string[];
   created_at: string;
 }
 
