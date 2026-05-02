@@ -123,7 +123,11 @@ npm run deploy -- --env production
    assets are missing.
 5. Environment variables (production):  
    `VITE_BACKEND_URL`, `VITE_TURNSTILE_SITE_KEY`, `VITE_SUPABASE_URL`,
-   `VITE_SUPABASE_ANON_KEY`
+   `VITE_SUPABASE_ANON_KEY`  
+   Set **`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` together** (or omit
+   both) so the client bundle never initializes Supabase with a half-empty
+   config. The app loads the landing page without them; auth and library need
+   both.
 
 **Still a blank page after fixing the output directory?** In the browser, use
 **View Page Source** (not the Elements panel). The built site must contain a
