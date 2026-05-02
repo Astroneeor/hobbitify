@@ -43,7 +43,7 @@ const SkillTree: React.FC = () => {
       void (async () => {
         const { data, error: qError } = await supabase
           .from("skill_trees")
-          .select("skills")
+          .select("skills, completed_skills")
           .eq("id", id)
           .single();
         setLoadingDb(false);
@@ -51,7 +51,7 @@ const SkillTree: React.FC = () => {
           setError("Could not load this skill tree from your library.");
           return;
         }
-        loadSkills(parseSkillTreeResponse(data.skills));
+        loadSkills(parseSkillTreeResponse(data.skills), data.completed_skills ?? []);
       })();
       return;
     }
@@ -63,12 +63,12 @@ const SkillTree: React.FC = () => {
     }
   }, [searchParams, location.state, session?.access_token]);
 
-  const loadSkills = (data: unknown) => {
+  const loadSkills = (data: unknown, savedProgress: string[] = []) => {
     try {
       const parsed = typeof data === "string" ? JSON.parse(data) : data;
       if (Array.isArray(parsed)) {
         setSkills(parsed as Skill[]);
-        setCompletedSkills(new Set());
+        setCompletedSkills(new Set(savedProgress));
         setSelectedSkill(null);
         setError(null);
         return;
@@ -81,9 +81,12 @@ const SkillTree: React.FC = () => {
           return;
         }
 
-        const completedFromFile = Array.isArray(exported.progress?.completedSkills)
-          ? exported.progress.completedSkills
-          : [];
+        // DB progress takes priority over exported file progress
+        const completedFromFile = savedProgress.length
+          ? savedProgress
+          : Array.isArray(exported.progress?.completedSkills)
+            ? exported.progress.completedSkills
+            : [];
 
         setSkills(exported.skills);
         setCompletedSkills(new Set(completedFromFile));
@@ -111,8 +114,23 @@ const SkillTree: React.FC = () => {
     return completedSkills.has(parent.Name);
   };
 
+  const saveProgress = (updated: Set<string>) => {
+    if (!treeId || !session) return;
+    void supabase
+      .from("skill_trees")
+      .update({ completed_skills: Array.from(updated) })
+      .eq("id", treeId)
+      .then(({ error: e }) => {
+        if (e) console.error("[hobbitify] progress save failed:", e.message);
+      });
+  };
+
   const handleSkillComplete = (skillName: string) => {
-    setCompletedSkills((prev) => new Set([...prev, skillName]));
+    setCompletedSkills((prev) => {
+      const next = new Set([...prev, skillName]);
+      saveProgress(next);
+      return next;
+    });
   };
 
   // --- Export ---
