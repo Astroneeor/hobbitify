@@ -1,6 +1,6 @@
 import React from "react";
 import { Skill } from "../../types/skill";
-import { getDifficultyColor, getDifficultyLabel } from "../../utils/skillTreeUtils";
+import { getDifficultyTier } from "../../types/skill";
 
 interface SkillNodeProps {
   skill: Skill;
@@ -11,9 +11,28 @@ interface SkillNodeProps {
   childCount: number;
   onSelect: (skillName: string) => void;
   onComplete: (skillName: string) => void;
-  /** Tighter card for graph layout (line-clamp, smaller type). */
   compact?: boolean;
 }
+
+function tierToNodeClass(
+  isRoot: boolean,
+  isCompleted: boolean,
+  isUnlocked: boolean,
+): string {
+  if (isCompleted) return "skill-node--completed";
+  if (isRoot)      return "skill-node--root";
+  if (isUnlocked)  return "skill-node--unlocked";
+  return "skill-node--locked";
+}
+
+const DIFFICULTY_BAR_COLOR: Record<string, string> = {
+  Beginner:      "var(--bio-kelp)",
+  Foundational:  "var(--bio-kelp)",
+  Intermediate:  "var(--bio-cyan)",
+  Advanced:      "var(--bio-amber)",
+  Expert:        "var(--bio-amber)",
+  Master:        "var(--bio-coral)",
+};
 
 const SkillNode: React.FC<SkillNodeProps> = ({
   skill,
@@ -31,84 +50,126 @@ const SkillNode: React.FC<SkillNodeProps> = ({
     if (isUnlocked && !isCompleted) onComplete(skill.Name);
   };
 
-  const difficultyText = isCompleted ? "Completed" : getDifficultyLabel(skill.Difficulty);
-  const difficultyColorClass = isCompleted
-    ? "bg-success/20 border-success/50 text-success"
-    : getDifficultyColor(skill.Difficulty);
-
-  const borderColor = isCompleted
-    ? "border-success/50"
-    : !isUnlocked
-    ? "border-border-primary"
-    : isSelected
-    ? "border-accent-primary"
-    : "border-border-secondary hover:border-accent-primary/50";
-
-  const bgColor = isCompleted
-    ? "bg-success/10"
-    : !isUnlocked
-    ? "bg-bg-secondary opacity-50"
-    : isSelected
-    ? "bg-accent-primary/10"
-    : "bg-bg-tertiary hover:bg-bg-hover";
+  const tier = getDifficultyTier(skill.Difficulty);
+  const tierCls = tierToNodeClass(isRoot, isCompleted, isUnlocked);
+  const barColor = DIFFICULTY_BAR_COLOR[tier.label] ?? "var(--bio-cyan)";
 
   return (
     <div
       data-no-pan
       onClick={() => isUnlocked && onSelect(skill.Name)}
-      className={`
-        relative border rounded-xl transition-all duration-200 flex flex-col
-        ${compact ? "p-3" : "p-4"}
-        ${borderColor} ${bgColor}
-        ${isUnlocked ? "cursor-pointer" : "cursor-not-allowed"}
-        ${isSelected ? "ring-1 ring-accent-primary/40 shadow-lg shadow-accent-primary/10" : ""}
-      `}
+      className={`skill-node ${tierCls} ${isSelected ? "skill-node--selected" : ""}`}
+      style={{ width: 200, minHeight: compact ? 110 : 130 }}
     >
-      {/* Top row: name + status */}
-      <div className={`flex items-start justify-between gap-2 ${compact ? "mb-1.5" : "mb-2"}`}>
-        <h3 className={`font-semibold ${compact ? "text-xs" : "text-sm"} leading-snug flex-1 ${!isUnlocked ? "text-text-muted" : "text-text-primary"}`}>
-          {isRoot && <span className="text-accent-light mr-1">◆</span>}
-          {skill.Name}
-        </h3>
-        {isCompleted ? (
-          <div className="w-5 h-5 bg-success rounded-full flex items-center justify-center flex-shrink-0">
-            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+      {/* Head row: tier label + status icon */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+        <span className="font-mono" style={{ fontSize: 9, letterSpacing: "1.5px", color: "var(--ink-dim)" }}>
+          {tier.label.toUpperCase()}
+        </span>
+        <span style={{ width: 12, height: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {isCompleted ? (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--bio-kelp)" strokeWidth="3" aria-hidden>
+              <polyline points="20 6 9 17 4 12" />
             </svg>
-          </div>
-        ) : !isUnlocked ? (
-          <svg className="w-4 h-4 text-text-muted flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-        ) : null}
+          ) : !isUnlocked ? (
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--ink-dim)" strokeWidth="2" aria-hidden>
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          ) : isRoot ? (
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--bio-cyan)" aria-hidden>
+              <path d="M12 3l1.9 5.8L20 9l-4.5 4.4 1.1 6.1L12 16.4 7.4 19.5l1.1-6.1L4 9l6.1-.2z"/>
+            </svg>
+          ) : null}
+        </span>
       </div>
+
+      {/* Name */}
+      <h4
+        style={{
+          fontSize: compact ? 12 : 13,
+          fontWeight: 600,
+          lineHeight: 1.25,
+          color: isUnlocked || isCompleted ? "var(--ink)" : "var(--ink-mute)",
+          marginBottom: 5,
+          overflow: "hidden",
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+        } as React.CSSProperties}
+      >
+        {skill.Name}
+      </h4>
 
       {/* Description */}
       <p
-        className={`${compact ? "text-[11px] mb-2 line-clamp-2" : "text-xs mb-3"} leading-relaxed flex-1 ${!isUnlocked ? "text-text-muted/60" : "text-text-secondary"}`}
+        style={{
+          fontSize: 11,
+          lineHeight: 1.45,
+          color: isUnlocked || isCompleted ? "var(--ink-mute)" : "var(--ink-dim)",
+          marginBottom: 10,
+          overflow: "hidden",
+          display: "-webkit-box",
+          WebkitLineClamp: compact ? 2 : 3,
+          WebkitBoxOrient: "vertical",
+        } as React.CSSProperties}
       >
         {skill.Description}
       </p>
 
-      {/* Bottom row: difficulty badge + unlocks count */}
-      <div className={`flex items-center justify-between gap-2 mt-auto ${compact ? "flex-wrap" : ""}`}>
-        <div className={`inline-flex items-center px-2 py-0.5 rounded-full ${compact ? "text-[9px]" : "text-[10px]"} font-medium border ${difficultyColorClass}`}>
-          {difficultyText}
+      {/* Footer: difficulty bar + unlock count */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flex: 1 }}>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 9,
+              letterSpacing: "1.2px",
+              padding: "2px 8px",
+              borderRadius: "var(--r-pill)",
+              border: "1px solid",
+              color:        isCompleted ? "var(--bio-kelp)"  : !isUnlocked ? "var(--ink-dim)"  : barColor,
+              borderColor:  isCompleted ? "var(--bio-kelp)"  : !isUnlocked ? "var(--clay-edge-soft)" : barColor,
+              background:   isCompleted ? "oklch(0.75 0.13 165 / 0.15)" : "oklch(0.10 0.01 240 / 0.5)",
+            }}
+          >
+            {isCompleted ? "CLEARED" : !isUnlocked ? "LOCKED" : `${skill.Difficulty}`}
+          </span>
+          <div
+            style={{
+              flex: 1,
+              height: 3,
+              background: "oklch(0.10 0.01 240)",
+              borderRadius: "var(--r-pill)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: isCompleted ? "100%" : !isUnlocked ? "0%" : `${skill.Difficulty}%`,
+                background: barColor,
+                borderRadius: "var(--r-pill)",
+                boxShadow: isUnlocked || isCompleted ? `0 0 5px ${barColor}` : "none",
+                transition: "width 0.3s ease",
+              }}
+            />
+          </div>
         </div>
         {childCount > 0 && (
-          <span className="text-[10px] text-text-muted">
-            → {childCount}
+          <span className="font-mono" style={{ fontSize: 9, color: "var(--ink-dim)", letterSpacing: "0.5px", flexShrink: 0 }}>
+            →{childCount}
           </span>
         )}
       </div>
 
-      {/* Inline complete button when selected */}
+      {/* Inline complete button when selected + unlocked */}
       {isSelected && isUnlocked && !isCompleted && (
         <button
           onClick={handleComplete}
-          className="mt-3 w-full px-3 py-1.5 bg-accent-primary hover:bg-accent-hover text-white rounded-lg text-xs font-medium transition-all duration-150"
+          className="btn btn--primary"
+          style={{ marginTop: 10, width: "100%", justifyContent: "center", padding: "8px 12px", fontSize: 11, borderRadius: "var(--r-md)" }}
         >
-          Mark Complete
+          Mark complete
         </button>
       )}
     </div>

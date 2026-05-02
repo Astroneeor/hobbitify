@@ -1,4 +1,10 @@
-# React + TypeScript + Vite
+# Hobbitify frontend (Vite + React)
+
+Deployed as **Cloudflare Pages** from this directory (`dist/`). **Backend contract and env vars** for a refactored UI: repo root [AGENTS.md](../AGENTS.md). Worker client helpers live in `src/utils/apiUtils.ts`.
+
+---
+
+## Vite template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

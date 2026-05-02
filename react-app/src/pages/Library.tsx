@@ -5,6 +5,14 @@ import { useAuth } from "../contexts/AuthContext";
 import type { ProfileRow, SkillTreeRow } from "../lib/supabase";
 import { supabase } from "../lib/supabase";
 
+const BANNER_CLASSES = [
+  "biome-banner--cyan",
+  "biome-banner--kelp",
+  "biome-banner--amber",
+  "biome-banner--coral",
+  "biome-banner--violet",
+];
+
 const Library: React.FC = () => {
   const { session } = useAuth();
   const [trees, setTrees] = useState<SkillTreeRow[]>([]);
@@ -41,122 +49,141 @@ const Library: React.FC = () => {
         setTrees((treesRes.data ?? []) as SkillTreeRow[]);
       }
 
-      if (profileRes.error) {
-        setProfile(null);
-      } else {
-        setProfile(profileRes.data as ProfileRow);
-      }
+      setProfile(profileRes.error ? null : (profileRes.data as ProfileRow));
       setLoading(false);
     };
 
     void load();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [session?.access_token]);
 
-  const totalRemaining = profile
-    ? Math.max(10 - profile.total_count, 0)
-    : null;
-  const genRemaining = profile
-    ? Math.max(5 - profile.generated_count, 0)
-    : null;
+  const totalRemaining = profile ? Math.max(10 - profile.total_count, 0)     : null;
+  const genRemaining   = profile ? Math.max(5  - profile.generated_count, 0) : null;
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
-      <nav className="border-b border-border-primary">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-3">
-          <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">
-            hobbitify
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      {/* Chrome nav */}
+      <nav className="chrome">
+        <Link to="/" className="brand">
+          <span className="brand-glyph" />
+          hobbitify
+        </Link>
+        <div className="nav-actions">
+          <Link to="/getting-started" className="btn btn--primary btn-sm">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+              <path d="M12 3l1.9 5.8L20 9l-4.5 4.4 1.1 6.1L12 16.4 7.4 19.5l1.1-6.1L4 9l6.1-.2z"/>
+            </svg>
+            Generate
           </Link>
-          <div className="flex items-center gap-2 text-sm">
-            <Link
-              to="/getting-started"
-              className="px-3 py-1.5 rounded-lg bg-accent-primary hover:bg-accent-hover text-white text-xs font-medium transition-colors"
-            >
-              Generate
-            </Link>
-            <Link
-              to="/upload"
-              className="px-3 py-1.5 rounded-lg border border-border-primary text-text-secondary hover:text-text-primary text-xs transition-colors"
-            >
-              Upload JSON
-            </Link>
-            <LogoutButton className="px-3 py-1.5 text-text-secondary hover:text-text-primary text-xs transition-colors" />
-          </div>
+          <Link to="/upload" className="btn btn--ghost btn-sm">Upload JSON</Link>
+          <LogoutButton className="btn btn--ghost btn-sm" />
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 48px 80px", maxWidth: 1280, width: "100%", margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 16, padding: "40px 0 28px" }}>
           <div>
-            <h1 className="text-3xl font-bold">Your library</h1>
-            <p className="text-text-secondary text-sm mt-1">
-              Free tier: up to 10 saved trees, of which at most 5 may be AI-generated.
+            <h1 className="font-display" style={{ fontSize: 34, fontWeight: 400, color: "var(--ink)", marginBottom: 6 }}>
+              Your library
+            </h1>
+            <p className="font-mono" style={{ fontSize: 10, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)" }}>
+              Free tier — 10 total, 5 AI-generated
             </p>
           </div>
+
           {profile && (
-            <div className="text-xs text-text-muted space-y-1 text-right">
-              <div>
-                Library slots: <span className="text-text-primary font-medium">{totalRemaining}</span>{" "}
-                left ({profile.total_count}/10 used)
+            <div style={{ display: "flex", gap: 12 }}>
+              <div className="hud-tag">
+                <span className="dot" />
+                {totalRemaining} library slots left
               </div>
-              <div>
-                AI generations left: <span className="text-text-primary font-medium">{genRemaining}</span>{" "}
-                ({profile.generated_count}/5 used)
+              <div className="hud-tag" style={{ borderColor: "oklch(0.55 0.14 210 / 0.3)" }}>
+                <span className="dot" style={{ background: "var(--bio-amber)", boxShadow: "0 0 8px var(--bio-amber)" }} />
+                {genRemaining} AI gens left
               </div>
             </div>
           )}
         </div>
 
         {loading && (
-          <div className="text-text-muted text-sm animate-pulse">Loading your trees...</div>
+          <p className="font-mono" style={{ fontSize: 11, color: "var(--ink-dim)", letterSpacing: "1.5px", animation: "pulse 2s ease-in-out infinite" }}>
+            SCANNING LIBRARY...
+          </p>
         )}
+
         {error && (
-          <div className="rounded-xl border border-error/30 bg-error/10 text-error text-sm px-4 py-3 mb-6">
+          <div
+            style={{
+              background: "oklch(0.70 0.17 35 / 0.1)",
+              border: "1px solid oklch(0.70 0.17 35 / 0.3)",
+              borderRadius: "var(--r-md)",
+              padding: "12px 16px",
+              marginBottom: 24,
+              color: "var(--bio-coral)",
+              fontSize: 13,
+            }}
+          >
             {error}
           </div>
         )}
 
         {!loading && !error && trees.length === 0 && (
-          <div className="rounded-2xl border border-border-primary bg-bg-tertiary p-10 text-center">
-            <p className="text-text-secondary mb-4">No trees yet. Generate one or upload a JSON export.</p>
-            <Link
-              to="/getting-started"
-              className="inline-flex px-5 py-2.5 rounded-xl bg-accent-primary hover:bg-accent-hover text-white text-sm font-semibold transition-colors"
-            >
-              Create your first tree
+          <div
+            className="clay-card"
+            style={{ padding: "60px 40px", textAlign: "center", borderRadius: "var(--r-xl)" }}
+          >
+            <p style={{ color: "var(--ink-mute)", marginBottom: 24, fontSize: 15 }}>
+              No biomes yet. Generate one or upload a JSON chart.
+            </p>
+            <Link to="/getting-started" className="btn btn--primary">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                <path d="M12 3l1.9 5.8L20 9l-4.5 4.4 1.1 6.1L12 16.4 7.4 19.5l1.1-6.1L4 9l6.1-.2z"/>
+              </svg>
+              Chart your first biome
             </Link>
           </div>
         )}
 
         {!loading && trees.length > 0 && (
-          <ul className="grid sm:grid-cols-2 gap-4">
-            {trees.map((t) => (
-              <li key={t.id}>
-                <Link
-                  to={`/skill-tree?id=${encodeURIComponent(t.id)}`}
-                  className="block rounded-xl border border-border-primary bg-bg-tertiary hover:border-accent-primary/40 p-5 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <h2 className="font-semibold text-text-primary line-clamp-2">{t.query}</h2>
-                    <span
-                      className={`flex-shrink-0 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full ${
-                        t.source === "generated"
-                          ? "bg-accent-primary/15 text-accent-light"
-                          : "bg-bg-primary text-text-muted border border-border-primary"
-                      }`}
-                    >
-                      {t.source}
-                    </span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
+            {trees.map((t, idx) => (
+              <Link
+                key={t.id}
+                to={`/skill-tree?id=${encodeURIComponent(t.id)}`}
+                className="biome-card"
+              >
+                <div className={`biome-banner ${BANNER_CLASSES[idx % BANNER_CLASSES.length]}`}>
+                  <div className="biome-depth-bar">
+                    <div className="biome-depth-fill" style={{ width: "60%" }} />
                   </div>
-                  <p className="text-xs text-text-muted mt-2">
-                    {new Date(t.created_at).toLocaleString()}
-                  </p>
-                </Link>
-              </li>
+                  <div className="biome-depth-label">
+                    {t.source === "generated" ? "AI·GEN" : "UPLOAD"}
+                  </div>
+                </div>
+                <div style={{ padding: "12px 16px 16px" }}>
+                  <h4
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: "var(--ink)",
+                      marginBottom: 6,
+                      overflow: "hidden",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    } as React.CSSProperties}
+                  >
+                    {t.query}
+                  </h4>
+                  <div className="font-mono" style={{ fontSize: 10, color: "var(--ink-dim)", letterSpacing: "1px" }}>
+                    {new Date(t.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                  </div>
+                </div>
+              </Link>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

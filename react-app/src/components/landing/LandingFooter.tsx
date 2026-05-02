@@ -7,27 +7,43 @@ interface LandingFooterProps {
 }
 
 export const LandingFooter: React.FC<LandingFooterProps> = ({ session }) => (
-  <footer className="border-t border-border-primary bg-bg-secondary/40">
-    <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col sm:flex-row items-center justify-between gap-6">
-      <p className="text-sm text-text-muted">
-        <span className="font-semibold text-text-secondary">hobbitify</span>
-        <span className="mx-2 text-border-secondary">·</span>
-        Skill trees for curious humans
-      </p>
-      <div className="flex items-center gap-6 text-sm">
-        <Link
-          to={session ? "/library" : "/login"}
-          className="text-text-muted hover:text-accent-light transition-colors"
-        >
-          {session ? "Library" : "Sign in"}
+  <footer
+    style={{
+      borderTop: "1px solid var(--clay-edge-soft)",
+      background: "linear-gradient(180deg, oklch(0.14 0.012 240 / 0.4), oklch(0.10 0.010 245 / 0.6))",
+      padding: "32px 48px",
+      display: "flex",
+      flexWrap: "wrap",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 16,
+    }}
+  >
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <span style={{ width: 18, height: 18, background: "var(--bio-cyan)", borderRadius: "50%", boxShadow: "var(--bio-glow-cyan)", display: "inline-block" }} />
+      <span className="font-display" style={{ fontSize: 18, color: "var(--ink)" }}>hobbitify</span>
+    </div>
+
+    <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+      {session && (
+        <>
+          <Link to="/getting-started" className="font-mono" style={{ fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)", textDecoration: "none" }}>
+            Generate
+          </Link>
+          <Link to="/library" className="font-mono" style={{ fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)", textDecoration: "none" }}>
+            Library
+          </Link>
+        </>
+      )}
+      {!session && (
+        <Link to="/login" className="font-mono" style={{ fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)", textDecoration: "none" }}>
+          Sign in
         </Link>
-        <Link
-          to={session ? "/getting-started" : "/login"}
-          className="text-accent-light hover:text-accent-primary transition-colors font-medium"
-        >
-          {session ? "Open generator" : "Get started"}
-        </Link>
-      </div>
+      )}
+    </div>
+
+    <div className="font-mono" style={{ fontSize: 10, letterSpacing: "1px", color: "var(--ink-dim)" }}>
+      © {new Date().getFullYear()} hobbitify — free tier
     </div>
   </footer>
 );

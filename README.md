@@ -1,5 +1,7 @@
 # Hobbitify
 
+**AI / IDE context:** See [AGENTS.md](AGENTS.md) (full stack and Worker API contract) and [CLAUDE.md](CLAUDE.md) (short Claude-oriented summary). Helpful when refactoring the UI against the Worker.
+
 Hobbitify turns learning goals into interactive RPG-style skill trees. Users
 sign in with **Supabase Auth**, save trees to a personal library, upload JSON
 exports, and get AI-generated paths from **Claude**. The stack is **Cloudflare

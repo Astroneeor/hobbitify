@@ -1,0 +1,23 @@
+---
+description: Hobbitify stack, Cloudflare hosting, and backend contract for UI work
+alwaysApply: true
+---
+
+# Hobbitify
+
+- **Product:** Learning goals → RPG-style skill trees; Supabase Auth; AI via Claude (Haiku) in the Worker.
+- **Hosting:** **Cloudflare Pages** serves `react-app/` (Vite `dist/`). **Cloudflare Worker** in `worker/` is the API for generation, upload, and `/me`. **Supabase** is Auth + Postgres (not CF).
+- **Split:** Browser uses **anon key + JWT** for direct Supabase reads (library, RLS). **Writes that enforce quotas / call AI** go through the **Worker** with **Bearer access token** + **Turnstile** on POST bodies.
+
+## When editing the frontend
+
+The UI is expected to change often. Preserve integration with:
+
+- `react-app/src/utils/apiUtils.ts` (or equivalent): `POST /generate`, `POST /upload`, `GET /me`, `GET /healthz`.
+- Env: `VITE_BACKEND_URL`, `VITE_SUPABASE_*`, `VITE_TURNSTILE_SITE_KEY`.
+
+Do **not** invent new API shapes; follow **`worker/src/index.ts`**.
+
+## Authoritative docs
+
+Read **`AGENTS.md`** at the repo root for the full HTTP contract, error codes, skill JSON schema, and tier limits. **`CLAUDE.md`** is a short parallel summary for Claude Code.

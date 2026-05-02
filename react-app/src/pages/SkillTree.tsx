@@ -9,18 +9,16 @@ import { parseSkillTreeResponse } from "../utils/skillTreeUtils";
 
 interface ExportedSkillTree {
   skills: Skill[];
-  progress: {
-    completedSkills: string[];
-    incompleteSkills: string[];
-  };
+  progress: { completedSkills: string[]; incompleteSkills: string[] };
 }
 
 const SkillTree: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const location   = useLocation();
+  const navigate   = useNavigate();
   const [searchParams] = useSearchParams();
   const { session } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [skills, setSkills] = useState<Skill[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
@@ -32,10 +30,7 @@ const SkillTree: React.FC = () => {
     const id = searchParams.get("id");
     setTreeId(id);
 
-    if (location.state?.response) {
-      loadSkills(location.state.response);
-      return;
-    }
+    if (location.state?.response) { loadSkills(location.state.response); return; }
 
     if (id && session?.access_token) {
       setLoadingDb(true);
@@ -47,188 +42,130 @@ const SkillTree: React.FC = () => {
           .eq("id", id)
           .single();
         setLoadingDb(false);
-        if (qError || !data) {
-          setError("Could not load this skill tree from your library.");
-          return;
-        }
+        if (qError || !data) { setError("Could not load this skill tree from your library."); return; }
         loadSkills(parseSkillTreeResponse(data.skills));
       })();
       return;
     }
 
-    if (!id) {
-      setError("No skill tree data found. Please go back and generate a skill tree first.");
-    } else if (!session?.access_token) {
-      setError("Sign in to open saved trees from your library.");
-    }
+    if (!id) setError("No skill tree data found. Please go back and generate a skill tree first.");
+    else if (!session?.access_token) setError("Sign in to open saved trees from your library.");
   }, [searchParams, location.state, session?.access_token]);
 
   const loadSkills = (data: unknown) => {
     try {
       const parsed = typeof data === "string" ? JSON.parse(data) : data;
       if (Array.isArray(parsed)) {
-        setSkills(parsed as Skill[]);
-        setCompletedSkills(new Set());
-        setSelectedSkill(null);
-        setError(null);
+        setSkills(parsed as Skill[]); setCompletedSkills(new Set()); setSelectedSkill(null); setError(null);
         return;
       }
-
       if (parsed && typeof parsed === "object" && "skills" in parsed) {
         const exported = parsed as ExportedSkillTree;
-        if (!Array.isArray(exported.skills)) {
-          setError("Invalid saved format: skills array is missing.");
-          return;
-        }
-
-        const completedFromFile = Array.isArray(exported.progress?.completedSkills)
-          ? exported.progress.completedSkills
-          : [];
-
+        if (!Array.isArray(exported.skills)) { setError("Invalid saved format: skills array is missing."); return; }
         setSkills(exported.skills);
-        setCompletedSkills(new Set(completedFromFile));
-        setSelectedSkill(null);
-        setError(null);
+        setCompletedSkills(new Set(Array.isArray(exported.progress?.completedSkills) ? exported.progress.completedSkills : []));
+        setSelectedSkill(null); setError(null);
         return;
       }
-
       setError("Expected a skill array or saved export file.");
-    } catch {
-      setError("Invalid JSON format.");
-    }
+    } catch { setError("Invalid JSON format."); }
   };
 
-  // --- Tree structure helpers ---
-  const isRoot = (skill: Skill) =>
-    !skills.some((s) => s.Children?.includes(skill.Name));
-
-  const getParent = (skillName: string) =>
-    skills.find((s) => s.Children?.includes(skillName));
-
-  const isSkillUnlocked = (skillName: string): boolean => {
-    const parent = getParent(skillName);
-    if (!parent) return true; // root
-    return completedSkills.has(parent.Name);
+  const isRoot          = (skill: Skill) => !skills.some((s) => s.Children?.includes(skill.Name));
+  const getParent       = (name: string)  => skills.find((s) => s.Children?.includes(name));
+  const isSkillUnlocked = (name: string): boolean => {
+    const parent = getParent(name);
+    return !parent || completedSkills.has(parent.Name);
   };
 
-  const handleSkillComplete = (skillName: string) => {
-    setCompletedSkills((prev) => new Set([...prev, skillName]));
-  };
+  const handleSkillComplete = (name: string) =>
+    setCompletedSkills((prev) => new Set([...prev, name]));
 
-  // --- Export ---
   const handleExport = () => {
-    const completed = Array.from(completedSkills);
-    const completedSet = new Set(completed);
-    const incomplete = skills
-      .map((skill) => skill.Name)
-      .filter((skillName) => !completedSet.has(skillName));
-
+    const completed  = Array.from(completedSkills);
     const payload: ExportedSkillTree = {
       skills,
       progress: {
         completedSkills: completed,
-        incompleteSkills: incomplete,
+        incompleteSkills: skills.map((s) => s.Name).filter((n) => !completedSkills.has(n)),
       },
     };
-
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
     a.href = url;
-    const rootName = skills.find(isRoot)?.Name || "skill-tree";
-    a.download = `${rootName.toLowerCase().replace(/\s+/g, "-")}.json`;
+    a.download = `${(skills.find(isRoot)?.Name || "skill-tree").toLowerCase().replace(/\s+/g, "-")}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  // --- Import ---
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        loadSkills(ev.target?.result as string);
-      } catch {
-        setError("Failed to read the uploaded file.");
-      }
-    };
+    reader.onload = (ev) => { try { loadSkills(ev.target?.result as string); } catch { setError("Failed to read the uploaded file."); } };
     reader.readAsText(file);
-    // reset so same file can be re-uploaded
     e.target.value = "";
   };
 
   const handleDeleteFromLibrary = async () => {
-    if (!treeId) return;
-    if (!session) {
-      setError("Sign in to manage library trees.");
-      return;
-    }
-    if (!window.confirm("Remove this tree from your library? This cannot be undone.")) {
-      return;
-    }
-    const { error: delError } = await supabase
-      .from("skill_trees")
-      .delete()
-      .eq("id", treeId);
-    if (delError) {
-      setError(delError.message);
-      return;
-    }
+    if (!treeId || !session) return;
+    if (!window.confirm("Remove this tree from your library? This cannot be undone.")) return;
+    const { error: delError } = await supabase.from("skill_trees").delete().eq("id", treeId);
+    if (delError) { setError(delError.message); return; }
     navigate("/library");
   };
 
-  // --- Sidebar data ---
   const selectedData = skills.find((s) => s.Name === selectedSkill);
+  const pct          = skills.length ? Math.round((completedSkills.size / skills.length) * 100) : 0;
 
+  /* ── Loading state ── */
   if (loadingDb && skills.length === 0 && !error) {
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary flex items-center justify-center">
-        <div className="text-text-muted text-sm animate-pulse">Loading skill tree...</div>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <nav className="chrome">
+          <Link to="/" className="brand"><span className="brand-glyph" />hobbitify</Link>
+        </nav>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div className="hud-tag">
+            <span className="dot" style={{ animation: "glowPulse 2s ease-in-out infinite" }} />
+            scanning biome…
+          </div>
+        </div>
       </div>
     );
   }
 
-  // --- Error state ---
+  /* ── Error state (no skills loaded) ── */
   if (error && skills.length === 0) {
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary">
-        <nav className="border-b border-border-primary">
-          <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-            <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">hobbitify</Link>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-sm"
-              >
-                Load JSON
-              </button>
-              <Link to="/getting-started" className="px-4 py-2 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200 text-sm">
-                Generate New
-              </Link>
-            </div>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <nav className="chrome">
+          <Link to="/" className="brand"><span className="brand-glyph" />hobbitify</Link>
+          <div className="nav-actions">
+            <button className="btn btn--ghost btn-sm" onClick={() => fileInputRef.current?.click()}>Load JSON</button>
+            <Link to="/getting-started" className="btn btn--primary btn-sm">Generate new</Link>
           </div>
         </nav>
         <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
-        <div className="max-w-2xl mx-auto px-6 pt-16">
-          <div className="bg-error/10 border border-error/20 rounded-xl p-8 text-center">
-            <div className="w-16 h-16 bg-error/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
+          <div
+            className="clay-card"
+            style={{ maxWidth: 480, width: "100%", padding: "40px 32px", textAlign: "center", borderRadius: "var(--r-xl)" }}
+          >
+            <div
+              style={{ width: 56, height: 56, borderRadius: "50%", background: "oklch(0.70 0.17 35 / 0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--bio-coral)" strokeWidth="2" aria-hidden>
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
             </div>
-            <h2 className="text-xl font-semibold mb-2 text-error">Unable to Load Skill Tree</h2>
-            <p className="text-text-secondary mb-6">{error}</p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 border border-border-secondary hover:border-accent-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200"
-              >
-                Upload a saved tree
-              </button>
-              <Link to="/getting-started" className="px-4 py-2 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200">
-                Generate New
-              </Link>
+            <h2 className="font-display" style={{ fontSize: "1.4rem", color: "var(--ink)", marginBottom: 10 }}>Unable to load skill tree</h2>
+            <p style={{ fontSize: 13, color: "var(--ink-mute)", marginBottom: 24 }}>{error}</p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              <button className="btn btn--ghost btn-sm" onClick={() => fileInputRef.current?.click()}>Upload a saved tree</button>
+              <Link to="/getting-started" className="btn btn--primary btn-sm">Generate new</Link>
             </div>
           </div>
         </div>
@@ -237,59 +174,41 @@ const SkillTree: React.FC = () => {
   }
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] min-h-0 flex flex-col overflow-hidden bg-bg-primary text-text-primary">
-      {/* Nav */}
-      <nav className="border-b border-border-primary sticky top-0 bg-bg-primary/95 backdrop-blur-sm z-40">
-        <div className="max-w-[1600px] mx-auto px-6 py-3 flex justify-between items-center">
-          <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">hobbitify</Link>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-text-muted hidden sm:block">
-              {completedSkills.size}/{skills.length} done
-            </span>
-            {/* Progress pill */}
-            <div className="w-24 h-1.5 bg-bg-secondary rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-accent-primary to-success rounded-full transition-all duration-500"
-                style={{ width: `${skills.length ? (completedSkills.size / skills.length) * 100 : 0}%` }}
-              />
+    <div style={{ height: "100dvh", maxHeight: "100dvh", minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      {/* Chrome nav */}
+      <nav className="chrome">
+        <Link to="/" className="brand"><span className="brand-glyph" />hobbitify</Link>
+        <div className="nav-actions">
+          {/* Depth meter */}
+          <div className="depth-meter">
+            <span className="font-mono" style={{ fontSize: 10, letterSpacing: "2px", color: "var(--ink-dim)" }}>DEPTH</span>
+            <div className="depth-track">
+              <div className="depth-fill" style={{ width: `${pct}%` }} />
             </div>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="px-3 py-1.5 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-xs"
-            >
-              Load
-            </button>
-            <button
-              onClick={handleExport}
-              className="px-3 py-1.5 border border-border-secondary hover:border-border-primary text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-xs"
-            >
-              Export
-            </button>
-            <Link
-              to="/getting-started"
-              className="px-3 py-1.5 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200 text-xs font-medium"
-            >
-              New
-            </Link>
-            {treeId && session && (
-              <button
-                type="button"
-                onClick={handleDeleteFromLibrary}
-                className="px-3 py-1.5 border border-error/40 text-error hover:bg-error/10 rounded-lg transition-all duration-200 text-xs"
-              >
-                Delete
-              </button>
-            )}
-            {session && (
-              <LogoutButton className="px-3 py-1.5 text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-xs" />
-            )}
+            <span className="font-mono" style={{ fontSize: 12, fontWeight: 600, color: "var(--ink)" }}>
+              {completedSkills.size}/{skills.length}
+            </span>
           </div>
+
+          <button className="btn btn--ghost btn-sm" onClick={() => fileInputRef.current?.click()}>Load</button>
+          <button className="btn btn--ghost btn-sm" onClick={handleExport}>Export</button>
+          <Link to="/getting-started" className="btn btn--primary btn-sm">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+              <path d="M12 3l1.9 5.8L20 9l-4.5 4.4 1.1 6.1L12 16.4 7.4 19.5l1.1-6.1L4 9l6.1-.2z"/>
+            </svg>
+            New
+          </Link>
+          {treeId && session && (
+            <button type="button" onClick={handleDeleteFromLibrary} className="btn btn--danger btn-sm">Delete</button>
+          )}
+          {session && <LogoutButton className="btn btn--ghost btn-sm" />}
         </div>
       </nav>
 
       <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
 
-      <div className="flex flex-1 min-h-0 overflow-hidden overscroll-contain">
+      {/* Canvas area — full remaining height, relative for overlay */}
+      <div style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}>
         <SkillTreeGraph
           skills={skills}
           completedSkills={completedSkills}
@@ -300,120 +219,171 @@ const SkillTree: React.FC = () => {
           onComplete={handleSkillComplete}
         />
 
-        {/* Detail sidebar */}
+        {/* Floating detail panel — overlays the canvas */}
         {selectedData && (
-          <div className="w-80 border-l border-border-primary bg-bg-secondary flex-shrink-0 overflow-y-auto">
-            <div className="p-5 space-y-5">
-              <button
-                onClick={() => setSelectedSkill(null)}
-                className="text-xs text-text-muted hover:text-text-secondary transition-colors"
-              >
-                ← close
-              </button>
+          <DetailPanel
+            skill={selectedData}
+            completedSkills={completedSkills}
+            getParent={getParent}
+            isSkillUnlocked={isSkillUnlocked}
+            onSelectSkill={setSelectedSkill}
+            onComplete={handleSkillComplete}
+            onClose={() => setSelectedSkill(null)}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
 
-              {/* Difficulty bar */}
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className={`text-xs font-medium ${getDifficultyTier(selectedData.Difficulty).color.split(" ").pop()}`}>
-                    {getDifficultyTier(selectedData.Difficulty).label}
-                  </span>
-                  <span className="text-xs text-text-muted">{selectedData.Difficulty}/100</span>
-                </div>
-                <div className="w-full h-1.5 bg-bg-primary rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-300 ${
-                      selectedData.Difficulty <= 30 ? "bg-emerald-400" :
-                      selectedData.Difficulty <= 50 ? "bg-blue-400" :
-                      selectedData.Difficulty <= 70 ? "bg-amber-400" : "bg-red-400"
-                    }`}
-                    style={{ width: `${selectedData.Difficulty}%` }}
-                  />
-                </div>
-              </div>
+/* ═══════════════════════════
+   Floating detail panel
+   ═══════════════════════════ */
+interface DetailPanelProps {
+  skill: Skill;
+  completedSkills: Set<string>;
+  getParent: (name: string) => Skill | undefined;
+  isSkillUnlocked: (name: string) => boolean;
+  onSelectSkill: (name: string) => void;
+  onComplete: (name: string) => void;
+  onClose: () => void;
+}
 
-              <h2 className="text-lg font-bold leading-snug">{selectedData.Name}</h2>
+const DetailPanel: React.FC<DetailPanelProps> = ({
+  skill, completedSkills, getParent, isSkillUnlocked, onSelectSkill, onComplete, onClose,
+}) => {
+  const tier   = getDifficultyTier(skill.Difficulty);
+  const parent = getParent(skill.Name);
+  const done   = completedSkills.has(skill.Name);
+  const unlocked = isSkillUnlocked(skill.Name);
 
-              <div>
-                <h3 className="text-xs font-medium text-text-muted mb-1 uppercase tracking-wide">Description</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">{selectedData.Description}</p>
-              </div>
+  const TIER_COLORS: Record<string, string> = {
+    Beginner:    "var(--bio-kelp)",
+    Foundational:"var(--bio-kelp)",
+    Intermediate:"var(--bio-cyan)",
+    Advanced:    "var(--bio-amber)",
+    Expert:      "var(--bio-amber)",
+    Master:      "var(--bio-coral)",
+  };
+  const barColor = TIER_COLORS[tier.label] ?? "var(--bio-cyan)";
 
-              <div>
-                <h3 className="text-xs font-medium text-text-muted mb-1 uppercase tracking-wide">How to Complete</h3>
-                <p className="text-sm text-text-primary leading-relaxed">{selectedData.Completion}</p>
-              </div>
+  return (
+    <div className="detail-panel" data-no-pan>
+      {/* Head */}
+      <div className="detail-head">
+        <span className="detail-htag">◉ NODE.SCAN // {tier.label.toUpperCase()}</span>
+        <button className="detail-close" onClick={onClose} aria-label="Close">×</button>
+      </div>
 
-              {selectedData.Children && selectedData.Children.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-medium text-text-muted mb-2 uppercase tracking-wide">Unlocks</h3>
-                  <div className="space-y-1.5">
-                    {selectedData.Children.map((childName) => {
-                      const childCompleted = completedSkills.has(childName);
-                      const childUnlocked = isSkillUnlocked(childName);
-                      return (
-                        <button
-                          key={childName}
-                          onClick={() => childUnlocked && setSelectedSkill(childName)}
-                          disabled={!childUnlocked}
-                          className={`block w-full text-left px-3 py-2 rounded-lg text-xs transition-colors ${
-                            childCompleted ? "bg-success/10 text-success border border-success/20" :
-                            childUnlocked ? "bg-bg-tertiary hover:bg-bg-hover text-text-primary border border-border-secondary" :
-                            "bg-bg-primary text-text-muted border border-border-primary opacity-50"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>{childName}</span>
-                            {childCompleted && (
-                              <svg className="w-3.5 h-3.5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+      {/* Body */}
+      <div style={{ padding: "18px 20px", overflowY: "auto", maxHeight: "calc(100vh - 200px)" }}>
+        {/* Difficulty bar */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: barColor }}>{tier.label}</span>
+            <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-dim)", letterSpacing: "1px" }}>{skill.Difficulty}/100</span>
+          </div>
+          <div style={{ width: "100%", height: 4, background: "oklch(0.10 0.01 240)", borderRadius: "var(--r-pill)", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${skill.Difficulty}%`, background: barColor, boxShadow: `0 0 8px ${barColor}`, borderRadius: "var(--r-pill)", transition: "width 0.3s" }} />
+          </div>
+        </div>
 
-              {/* Parent link */}
-              {(() => {
-                const parent = getParent(selectedData.Name);
-                if (!parent) return null;
+        {/* Name */}
+        <h3 className="font-display" style={{ fontSize: 20, fontWeight: 400, color: "var(--ink)", lineHeight: 1.15, marginBottom: 8 }}>
+          {skill.Name}
+        </h3>
+
+        {/* Description */}
+        <div style={{ marginBottom: 16 }}>
+          <div className="font-mono" style={{ fontSize: 9, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)", marginBottom: 6 }}>Description</div>
+          <p style={{ fontSize: 13, lineHeight: 1.55, color: "var(--ink-mute)" }}>{skill.Description}</p>
+        </div>
+
+        {/* Completion criteria */}
+        <div style={{ marginBottom: 16 }}>
+          <div className="font-mono" style={{ fontSize: 9, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)", marginBottom: 6 }}>How to complete</div>
+          <p style={{ fontSize: 13, lineHeight: 1.55, color: "var(--ink)" }}>{skill.Completion}</p>
+        </div>
+
+        {/* Unlocks */}
+        {skill.Children && skill.Children.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <div className="font-mono" style={{ fontSize: 9, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)", marginBottom: 8 }}>Unlocks</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {skill.Children.map((childName) => {
+                const childCompleted = completedSkills.has(childName);
+                const childUnlocked  = isSkillUnlocked(childName);
                 return (
-                  <div>
-                    <h3 className="text-xs font-medium text-text-muted mb-1 uppercase tracking-wide">Requires</h3>
-                    <button
-                      onClick={() => setSelectedSkill(parent.Name)}
-                      className="text-xs text-accent-light hover:text-accent-primary transition-colors"
-                    >
-                      ← {parent.Name}
-                    </button>
-                  </div>
-                );
-              })()}
-
-              <div className="pt-3 border-t border-border-primary">
-                {completedSkills.has(selectedData.Name) ? (
-                  <div className="w-full px-4 py-2.5 bg-success/10 border border-success/20 text-success rounded-lg text-sm font-medium text-center">
-                    ✓ Completed
-                  </div>
-                ) : isSkillUnlocked(selectedData.Name) ? (
                   <button
-                    onClick={() => handleSkillComplete(selectedData.Name)}
-                    className="w-full px-4 py-2.5 bg-accent-primary hover:bg-accent-hover text-white rounded-lg text-sm font-medium transition-all duration-200"
+                    key={childName}
+                    onClick={() => childUnlocked && onSelectSkill(childName)}
+                    disabled={!childUnlocked}
+                    style={{
+                      textAlign: "left",
+                      padding: "8px 12px",
+                      borderRadius: "var(--r-sm)",
+                      border: `1px solid ${childCompleted ? "oklch(0.55 0.12 165 / 0.5)" : childUnlocked ? "var(--clay-edge)" : "var(--clay-edge-soft)"}`,
+                      background: childCompleted ? "oklch(0.28 0.04 165 / 0.3)" : childUnlocked ? "oklch(0.24 0.014 230 / 0.5)" : "oklch(0.12 0.01 240 / 0.3)",
+                      color: childCompleted ? "var(--bio-kelp)" : childUnlocked ? "var(--ink)" : "var(--ink-dim)",
+                      fontSize: 12,
+                      cursor: childUnlocked ? "pointer" : "not-allowed",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      transition: "all 0.15s",
+                      opacity: childUnlocked ? 1 : 0.6,
+                    }}
                   >
-                    Mark as Complete
+                    <span>{childName}</span>
+                    {childCompleted && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--bio-kelp)" strokeWidth="3" aria-hidden>
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
                   </button>
-                ) : (
-                  <div className="w-full px-4 py-2.5 bg-bg-tertiary border border-border-primary text-text-muted rounded-lg text-sm font-medium text-center">
-                    Complete prerequisites first
-                  </div>
-                )}
-              </div>
+                );
+              })}
             </div>
           </div>
         )}
+
+        {/* Requires */}
+        {parent && (
+          <div style={{ marginBottom: 16 }}>
+            <div className="font-mono" style={{ fontSize: 9, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)", marginBottom: 6 }}>Requires</div>
+            <button
+              onClick={() => onSelectSkill(parent.Name)}
+              style={{ background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 12, color: "var(--bio-cyan)", display: "flex", alignItems: "center", gap: 4 }}
+            >
+              ← {parent.Name}
+            </button>
+          </div>
+        )}
+
+        {/* Action */}
+        <div style={{ borderTop: "1px solid var(--clay-edge-soft)", paddingTop: 14 }}>
+          {done ? (
+            <div
+              style={{ width: "100%", padding: "11px 16px", borderRadius: "var(--r-md)", background: "oklch(0.75 0.13 165 / 0.15)", border: "1px solid oklch(0.55 0.12 165 / 0.5)", color: "var(--bio-kelp)", fontSize: 13, fontWeight: 600, textAlign: "center" }}
+            >
+              ✓ Cleared
+            </div>
+          ) : unlocked ? (
+            <button
+              onClick={() => onComplete(skill.Name)}
+              className="btn btn--primary"
+              style={{ width: "100%", justifyContent: "center", padding: "11px 16px" }}
+            >
+              Mark as complete
+            </button>
+          ) : (
+            <div
+              style={{ width: "100%", padding: "11px 16px", borderRadius: "var(--r-md)", background: "oklch(0.12 0.01 240 / 0.5)", border: "1px solid var(--clay-edge-soft)", color: "var(--ink-dim)", fontSize: 12, textAlign: "center" }}
+            >
+              ◌ Sealed by current — complete prerequisites first
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

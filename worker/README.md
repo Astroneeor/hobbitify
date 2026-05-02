@@ -1,5 +1,7 @@
 # hobbitify-worker
 
+Full agent-oriented API and architecture context: [../AGENTS.md](../AGENTS.md).
+
 Cloudflare Worker for Hobbitify. It verifies Supabase JWTs, enforces free-tier
 quotas in Postgres (via Supabase RPCs), checks Turnstile, rate-limits by IP,
 runs **pg_trgm** similarity search before burning an Anthropic call, and

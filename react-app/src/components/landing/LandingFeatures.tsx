@@ -1,55 +1,63 @@
 import React from "react";
-import { Reveal } from "./Reveal";
 
 const features = [
   {
-    title: "AI-powered",
-    body: "Claude builds structured skill trees from your goals. Free tier includes limited generations—upload JSON for more offline trees.",
+    tag: "01",
+    title: "Sonar-mapped paths",
+    desc: "Drop a topic, get a navigable lattice of prerequisites and adjacent rabbit holes — automatically grouped by depth.",
     icon: (
-      <svg className="w-7 h-7 text-accent-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <circle cx="12" cy="12" r="2" /><path d="M16.24 7.76a6 6 0 0 1 0 8.49" /><path d="M7.76 7.76a6 6 0 0 0 0 8.49" />
+        <path d="M20.07 4.93a10 10 0 0 1 0 14.14" /><path d="M3.93 4.93a10 10 0 0 0 0 14.14" />
       </svg>
     ),
-    accent: "bg-accent-primary/15 border-accent-primary/25",
   },
   {
-    title: "Your library",
-    body: "Sign in with Supabase to save trees, preview similar past goals before spending a generation, and curate what stays.",
+    tag: "02",
+    title: "Bioluminescent progress",
+    desc: "Nodes light up as you complete objectives. Pressure builds, currents shift, and your path gets clearer the deeper you go.",
     icon: (
-      <svg className="w-7 h-7 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <path d="M6 3v12" /><path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /><path d="M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+        <path d="M15 6a9 9 0 0 1 0 12" /><path d="M6 9h3" />
       </svg>
     ),
-    accent: "bg-success/10 border-success/25",
   },
   {
-    title: "Structured learning",
-    body: "Complex skills break into steps each with concrete completion criteria and unlock rules—like checkpoints on a quest line.",
+    tag: "03",
+    title: "Portable charts",
+    desc: "Save trees to your library, branch from any node, or export the whole biome as JSON for offline diving.",
     icon: (
-      <svg className="w-7 h-7 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+        <polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" />
       </svg>
     ),
-    accent: "bg-warning/10 border-warning/25",
   },
 ];
 
 export const LandingFeatures: React.FC = () => (
-  <section className="max-w-6xl mx-auto px-6 pb-12 md:pb-16">
-    <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-      {features.map((f, i) => (
-        <Reveal key={f.title} delayMs={i * 80}>
-          <article
-            className={`group h-full rounded-2xl border border-border-primary ${f.accent} bg-bg-tertiary/80 p-8 transition-all duration-300 hover:border-accent-primary/30 hover:shadow-[0_0_40px_-12px_rgba(59,130,246,0.35)] hover:-translate-y-1`}
-          >
-            <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-bg-primary/60 border border-border-secondary group-hover:border-accent-primary/25 transition-colors">
-              {f.icon}
-            </div>
-            <h3 className="text-xl font-semibold text-text-primary mb-3">{f.title}</h3>
-            <p className="text-text-secondary text-sm leading-relaxed">{f.body}</p>
-          </article>
-        </Reveal>
-      ))}
-    </div>
+  <section
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gap: 18,
+      maxWidth: 1280,
+      margin: "0 auto",
+      padding: "20px 48px 40px",
+    }}
+  >
+    {features.map((f) => (
+      <div key={f.tag} className="feature-card">
+        <div className="font-mono" style={{ position: "absolute", top: 16, right: 18, fontSize: 9, letterSpacing: "1.5px", color: "var(--ink-dim)" }}>
+          {f.tag}
+        </div>
+        <div className="feature-icon-wrap">{f.icon}</div>
+        <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 16, fontWeight: 600, marginBottom: 8, color: "var(--ink)" }}>
+          {f.title}
+        </h3>
+        <p style={{ fontSize: 13, lineHeight: 1.55, color: "var(--ink-mute)" }}>{f.desc}</p>
+      </div>
+    ))}
   </section>
 );

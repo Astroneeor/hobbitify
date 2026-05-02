@@ -9,38 +9,35 @@ interface LandingNavProps {
 }
 
 export const LandingNav: React.FC<LandingNavProps> = ({ loading, session }) => (
-  <nav className="sticky top-0 z-50 border-b border-border-primary/80 bg-bg-primary/70 backdrop-blur-md">
-    <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-3">
-      <Link to="/" className="text-xl font-semibold tracking-tight text-text-primary hover:text-accent-light transition-colors">
-        hobbitify
-      </Link>
-      <div className="flex items-center gap-2">
-            {!loading && session && (
-              <>
-                <Link
-                  to="/library"
-                  className="px-4 py-2 border border-border-secondary hover:border-accent-primary/40 text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-sm font-medium"
-                >
-                  Library
-                </Link>
-                <LogoutButton className="px-4 py-2 text-text-secondary hover:text-text-primary rounded-lg transition-colors text-sm font-medium" />
-              </>
-            )}
-        {!loading && !session && (
-          <Link
-            to="/login"
-            className="px-4 py-2 border border-border-secondary hover:border-accent-primary/40 text-text-secondary hover:text-text-primary rounded-lg transition-all duration-200 text-sm font-medium"
-          >
-            Sign in
+  <nav className="chrome">
+    <Link to="/" className="brand">
+      <span className="brand-glyph" />
+      hobbitify
+    </Link>
+
+    <div className="nav-actions">
+      {!loading && session && (
+        <>
+          <Link to="/library" className="btn btn--ghost btn-sm">
+            Library
           </Link>
-        )}
-        <Link
-          to={session ? "/getting-started" : "/login"}
-          className="px-4 py-2 bg-accent-primary hover:bg-accent-hover text-white rounded-lg transition-all duration-200 font-medium text-sm shadow-lg shadow-accent-primary/15"
-        >
-          {session ? "Generate" : "Get Started"}
+          <LogoutButton className="btn btn--ghost btn-sm" />
+        </>
+      )}
+      {!loading && !session && (
+        <Link to="/login" className="btn btn--ghost btn-sm">
+          Sign in
         </Link>
-      </div>
+      )}
+      <Link
+        to={session ? "/getting-started" : "/login"}
+        className="btn btn--primary btn-sm"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+          <path d="M12 3l1.9 5.8L20 9l-4.5 4.4 1.1 6.1L12 16.4 7.4 19.5l1.1-6.1L4 9l6.1-.2z"/>
+        </svg>
+        {session ? "Generate" : "Get started"}
+      </Link>
     </div>
   </nav>
 );

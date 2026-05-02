@@ -1,47 +1,35 @@
 import React from "react";
-import { Reveal } from "./Reveal";
 
 const steps = [
-  {
-    title: "Name your goal",
-    body: "Tell Hobbitify what you want to learn—anything from crafts to games to career skills.",
-  },
-  {
-    title: "Follow the path",
-    body: "AI lays out a branching tree: prerequisites first, then deeper challenges as you progress.",
-  },
-  {
-    title: "Keep the journey",
-    body: "Sign in to save trees in your library, spot similar goals before generating again, and export JSON anytime.",
-  },
+  { num: "01", title: "Drop a goal",   desc: "Type any skill, hobby, or topic you want to learn — from quilting to quantum field theory." },
+  { num: "02", title: "Chart the biome", desc: "Claude maps prerequisites, adjacent skills, and depth levels into a navigable skill tree." },
+  { num: "03", title: "Dive in",       desc: "Work through nodes in order — each completed skill unlocks the next layer of the tree." },
 ];
 
 export const LandingHowItWorks: React.FC = () => (
-  <section className="max-w-5xl mx-auto px-6 py-20 md:py-28">
-    <Reveal>
-      <h2 className="text-center text-sm font-semibold uppercase tracking-[0.25em] text-accent-light/90 mb-4">
-        How it works
-      </h2>
-      <p className="text-center text-2xl md:text-3xl font-semibold text-text-primary mb-16 max-w-2xl mx-auto">
-        Three beats from goal to library
-      </p>
-    </Reveal>
-
-    <div className="grid md:grid-cols-3 gap-10 md:gap-12">
-      {steps.map((step, i) => (
-        <Reveal key={step.title} delayMs={i * 120}>
-          <article className="relative md:text-center">
-            <div className="flex md:flex-col md:items-center gap-4 md:gap-6">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-accent-primary/40 bg-accent-primary/10 text-sm font-bold text-accent-light md:mx-auto shadow-[0_0_24px_-8px_rgba(59,130,246,0.5)]">
-                {i + 1}
-              </span>
-              <div>
-                <h3 className="text-lg font-semibold text-text-primary mb-2">{step.title}</h3>
-                <p className="text-text-secondary text-sm leading-relaxed">{step.body}</p>
-              </div>
-            </div>
-          </article>
-        </Reveal>
+  <section
+    style={{
+      maxWidth: 1280,
+      margin: "0 auto",
+      padding: "24px 48px 56px",
+      borderTop: "1px solid var(--clay-edge-soft)",
+    }}
+  >
+    <div className="hud-label" style={{ marginBottom: 32, textAlign: "center" }}>
+      How it works
+    </div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
+      {steps.map((s) => (
+        <div key={s.num}>
+          <div
+            className="font-display"
+            style={{ fontSize: 40, fontWeight: 400, color: "var(--bio-cyan)", opacity: 0.6, lineHeight: 1, marginBottom: 12 }}
+          >
+            {s.num}
+          </div>
+          <h3 style={{ fontSize: 17, fontWeight: 600, color: "var(--ink)", marginBottom: 8 }}>{s.title}</h3>
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--ink-mute)" }}>{s.desc}</p>
+        </div>
       ))}
     </div>
   </section>

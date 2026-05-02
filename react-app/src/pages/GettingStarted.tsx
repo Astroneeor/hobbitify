@@ -14,6 +14,13 @@ import {
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? "";
 
+const SUGGESTIONS = [
+  "Learn to play guitar",
+  "Master sourdough baking",
+  "Get into rock climbing",
+  "Start digital illustration",
+];
+
 const GettingStarted: React.FC = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -27,14 +34,8 @@ const GettingStarted: React.FC = () => {
   const [similarOpen, setSimilarOpen] = useState(false);
   const [similarMatches, setSimilarMatches] = useState<SimilarMatch[]>([]);
 
-  const handleVerify = useCallback((token: string) => {
-    setTurnstileToken(token);
-  }, []);
-
-  const handleTurnstileFailure = useCallback(() => {
-    setTurnstileToken(null);
-  }, []);
-
+  const handleVerify = useCallback((token: string) => setTurnstileToken(token), []);
+  const handleTurnstileFailure = useCallback(() => setTurnstileToken(null), []);
   const handleReady = useCallback((h: { reset: () => void }) => {
     turnstileResetRef.current = h.reset;
   }, []);
@@ -51,31 +52,17 @@ const GettingStarted: React.FC = () => {
       }
     };
     void load();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [session?.access_token]);
 
   const runGenerate = async (force: boolean) => {
-    if (!session?.access_token) {
-      setError("You need to be signed in.");
-      return;
-    }
-    if (TURNSTILE_SITE_KEY && !turnstileToken) {
-      setError("Please complete the verification challenge.");
-      return;
-    }
+    if (!session?.access_token) { setError("You need to be signed in."); return; }
+    if (TURNSTILE_SITE_KEY && !turnstileToken) { setError("Please complete the verification challenge."); return; }
 
     setLoading(true);
     setError(null);
     try {
-      const token = turnstileToken ?? "";
-      const result = await requestGenerate(
-        session.access_token,
-        inputValue,
-        token,
-        force,
-      );
+      const result = await requestGenerate(session.access_token, inputValue, turnstileToken ?? "", force);
 
       if ("similar" in result && result.similar.length > 0) {
         setSimilarMatches(result.similar);
@@ -93,11 +80,7 @@ const GettingStarted: React.FC = () => {
 
       throw new Error("Unexpected server response");
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to generate skill tree. Please try again.",
-      );
+      setError(err instanceof Error ? err.message : "Failed to generate skill tree. Please try again.");
       turnstileResetRef.current?.();
       setTurnstileToken(null);
     } finally {
@@ -108,13 +91,8 @@ const GettingStarted: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    const validation = validateInput(inputValue);
-    if (!validation.isValid) {
-      setError(validation.error || "Invalid input");
-      return;
-    }
-
+    const v = validateInput(inputValue);
+    if (!v.isValid) { setError(v.error || "Invalid input"); return; }
     await runGenerate(false);
   };
 
@@ -128,33 +106,20 @@ const GettingStarted: React.FC = () => {
     await runGenerate(true);
   };
 
-  const submitDisabled =
-    loading ||
-    inputValue.trim() === "" ||
-    (TURNSTILE_SITE_KEY !== "" && !turnstileToken);
+  const submitDisabled = loading || inputValue.trim() === "" || (TURNSTILE_SITE_KEY !== "" && !turnstileToken);
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
-      <nav className="border-b border-border-primary">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-3">
-          <Link to="/" className="text-xl font-semibold hover:text-accent-light transition-colors">
-            hobbitify
-          </Link>
-          <div className="flex items-center gap-3 text-sm">
-            <Link
-              to="/library"
-              className="text-text-secondary hover:text-text-primary transition-colors"
-            >
-              Library
-            </Link>
-            <Link
-              to="/upload"
-              className="text-text-secondary hover:text-text-primary transition-colors"
-            >
-              Upload
-            </Link>
-            <LogoutButton className="text-text-secondary hover:text-text-primary transition-colors" />
-          </div>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      {/* Chrome nav */}
+      <nav className="chrome">
+        <Link to="/" className="brand">
+          <span className="brand-glyph" />
+          hobbitify
+        </Link>
+        <div className="nav-actions">
+          <Link to="/library" className="btn btn--ghost btn-sm">Library</Link>
+          <Link to="/upload"  className="btn btn--ghost btn-sm">Upload JSON</Link>
+          <LogoutButton className="btn btn--ghost btn-sm" />
         </div>
       </nav>
 
@@ -166,46 +131,102 @@ const GettingStarted: React.FC = () => {
         onClose={() => setSimilarOpen(false)}
       />
 
-      <div className="flex flex-col items-center justify-center px-6 pt-24 pb-16">
-        <div className="max-w-xl w-full">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">
-              What do you want to learn?
+      {/* Main content */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px 24px 80px",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: 560 }}>
+          {/* Header */}
+          <div style={{ marginBottom: 40, textAlign: "center" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+              <span className="hud-tag">
+                <span className="dot" />
+                new scan
+              </span>
+            </div>
+            <h1 className="font-display" style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: 400, color: "var(--ink)", lineHeight: 1.1, marginBottom: 14 }}>
+              What do you want to <span style={{ fontStyle: "italic", color: "var(--bio-cyan)" }}>learn?</span>
             </h1>
-            <p className="text-text-secondary text-lg leading-relaxed">
-              Describe any skill or hobby, and we'll generate a personalized learning path with clear milestones.
+            <p style={{ fontSize: 15, color: "var(--ink-mute)", lineHeight: 1.55, maxWidth: 420, margin: "0 auto" }}>
+              Describe any skill or hobby and we'll chart a navigable skill tree — one beacon at a time.
             </p>
+
             {quota && (
-              <p className="text-xs text-text-muted mt-4">
-                Free tier:{" "}
-                <span className="text-text-primary font-medium">
-                  {quota.generated_remaining}
-                </span>{" "}
-                AI generations left ({quota.generated_count}/{quota.limits.generated} used) ·{" "}
-                <span className="text-text-primary font-medium">
-                  {quota.total_remaining}
-                </span>{" "}
-                library slots left ({quota.total_count}/{quota.limits.total} used)
-              </p>
+              <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
+                <div className="hud-tag">
+                  <span className="dot" style={{ background: "var(--bio-amber)", boxShadow: "0 0 8px var(--bio-amber)" }} />
+                  {quota.generated_remaining} AI gens left
+                </div>
+                <div className="hud-tag">
+                  <span className="dot" />
+                  {quota.total_remaining} library slots
+                </div>
+              </div>
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <div
+              className="clay-card"
+              style={{ borderRadius: "var(--r-xl)", overflow: "hidden", padding: "2px 2px 0", marginBottom: 16 }}
+            >
+              {/* Mock terminal header */}
+              <div
+                className="scan-panel-head"
+                style={{ borderRadius: "calc(var(--r-xl) - 2px) calc(var(--r-xl) - 2px) 0 0", borderBottom: "1px solid var(--clay-edge-soft)" }}
+              >
+                <span>INPUT.GOAL</span>
+                <div className="scan-panel-dots">
+                  <span className="scan-dot scan-dot-live" />
+                  <span className="scan-dot" />
+                  <span className="scan-dot" />
+                </div>
+              </div>
+
               <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="e.g. I want to learn watercolor painting, starting from the basics..."
-                className="w-full h-32 px-5 py-4 rounded-xl bg-bg-tertiary border-2 border-border-primary text-text-primary placeholder-text-muted focus:border-accent-primary focus:outline-none focus:ring-1 focus:ring-accent-primary transition-all duration-200 resize-none text-base"
+                rows={4}
+                style={{
+                  width: "100%",
+                  background: "transparent",
+                  border: "none",
+                  outline: "none",
+                  color: "var(--ink)",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  padding: "16px 18px",
+                  resize: "none",
+                }}
               />
-              <div className="flex justify-between mt-2 text-xs text-text-muted">
-                <span>{inputValue.length}/500 characters</span>
-                <span>Be as specific as you like</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "8px 18px 14px",
+                  borderTop: "1px solid var(--clay-edge-soft)",
+                }}
+              >
+                <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-dim)", letterSpacing: "1px" }}>
+                  {inputValue.length}/500
+                </span>
+                <span className="font-mono" style={{ fontSize: 10, color: "var(--ink-dim)", letterSpacing: "1px" }}>
+                  3–500 chars
+                </span>
               </div>
             </div>
 
             {TURNSTILE_SITE_KEY ? (
-              <div className="flex justify-center">
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
                 <Turnstile
                   siteKey={TURNSTILE_SITE_KEY}
                   onVerify={handleVerify}
@@ -216,16 +237,28 @@ const GettingStarted: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className="text-xs text-text-muted text-center">
-                Turnstile is disabled (no <code>VITE_TURNSTILE_SITE_KEY</code> set).
-                Set it for production deploys.
+              <div className="font-mono" style={{ fontSize: 10, color: "var(--ink-dim)", letterSpacing: "1px", textAlign: "center", marginBottom: 16 }}>
+                TURNSTILE DISABLED — set VITE_TURNSTILE_SITE_KEY for production
               </div>
             )}
 
             {error && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-error/10 border border-error/20 text-error text-sm">
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  padding: "12px 16px",
+                  borderRadius: "var(--r-md)",
+                  background: "oklch(0.70 0.17 35 / 0.1)",
+                  border: "1px solid oklch(0.70 0.17 35 / 0.3)",
+                  color: "var(--bio-coral)",
+                  fontSize: 13,
+                  marginBottom: 16,
+                  alignItems: "flex-start",
+                }}
+              >
+                <svg style={{ flexShrink: 0, marginTop: 1 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
                 {error}
               </div>
@@ -234,39 +267,51 @@ const GettingStarted: React.FC = () => {
             <button
               type="submit"
               disabled={submitDisabled}
-              className="w-full px-6 py-4 bg-accent-primary hover:bg-accent-hover disabled:bg-bg-hover disabled:text-text-muted text-white rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:cursor-not-allowed"
+              className="btn btn--primary"
+              style={{ width: "100%", justifyContent: "center", padding: "14px 24px", fontSize: 15, borderRadius: "var(--r-lg)" }}
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-3">
-                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                <>
+                  <svg style={{ animation: "spin 1s linear infinite" }} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Generating your skill tree...
-                </span>
+                  Charting biome...
+                </>
               ) : (
-                "Generate Skill Tree"
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+                    <path d="M12 3l1.9 5.8L20 9l-4.5 4.4 1.1 6.1L12 16.4 7.4 19.5l1.1-6.1L4 9l6.1-.2z"/>
+                  </svg>
+                  Generate skill tree
+                </>
               )}
             </button>
           </form>
 
-          <div className="mt-10">
-            <p className="text-text-muted text-sm mb-3 text-center">Try one of these:</p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {["Learn to play guitar", "Master sourdough baking", "Get into rock climbing", "Start digital illustration"].map((suggestion) => (
+          {/* Suggestions */}
+          <div style={{ marginTop: 28 }}>
+            <div className="font-mono" style={{ fontSize: 10, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--ink-dim)", marginBottom: 10, textAlign: "center" }}>
+              Try one of these
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8 }}>
+              {SUGGESTIONS.map((s) => (
                 <button
-                  key={suggestion}
+                  key={s}
                   type="button"
-                  onClick={() => setInputValue(suggestion)}
-                  className="px-3 py-1.5 rounded-full bg-bg-tertiary border border-border-primary text-text-secondary text-sm hover:border-accent-primary/50 hover:text-text-primary transition-all duration-200"
+                  onClick={() => setInputValue(s)}
+                  className="btn btn--ghost btn-sm"
+                  style={{ borderRadius: "var(--r-pill)", fontSize: 12 }}
                 >
-                  {suggestion}
+                  {s}
                 </button>
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

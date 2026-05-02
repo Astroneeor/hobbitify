@@ -10,7 +10,6 @@ import { LandingFooter } from "../components/landing/LandingFooter";
 import { LandingHero } from "../components/landing/LandingHero";
 import { LandingHowItWorks } from "../components/landing/LandingHowItWorks";
 import { LandingNav } from "../components/landing/LandingNav";
-import { Reveal } from "../components/landing/Reveal";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -40,31 +39,30 @@ const LandingPage: React.FC = () => {
           setLoadError("Unable to read file contents.");
           return;
         }
-
         const parsed = JSON.parse(raw);
         navigate("/skill-tree", { state: { response: parsed } });
       } catch {
         setLoadError("Invalid JSON file. Please pick a valid export.");
       }
     };
-    reader.onerror = () => {
-      setLoadError("Failed to read selected file.");
-    };
+    reader.onerror = () => setLoadError("Failed to read selected file.");
     reader.readAsText(file);
     e.target.value = "";
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
+    <div style={{ overflowX: "hidden" }}>
       <LandingNav loading={loading} session={session} />
 
-      <LandingHero reduceMotion={reduceMotion} />
+      <div
+        style={{
+          overflowY: "auto",
+          overflowX: "hidden",
+          maxHeight: "calc(100vh - 64px)",
+        }}
+      >
+        <LandingHero reduceMotion={reduceMotion} />
 
-      <Reveal>
-        <LandingDemoStrip />
-      </Reveal>
-
-      <Reveal>
         <LandingActions
           session={session}
           loadError={loadError}
@@ -73,13 +71,15 @@ const LandingPage: React.FC = () => {
           onLoadClick={handleLoadClick}
           onImport={handleImport}
         />
-      </Reveal>
 
-      <LandingHowItWorks />
+        <LandingFeatures />
 
-      <LandingFeatures />
+        <LandingDemoStrip />
 
-      <LandingFooter session={session} />
+        <LandingHowItWorks />
+
+        <LandingFooter session={session} />
+      </div>
     </div>
   );
 };
